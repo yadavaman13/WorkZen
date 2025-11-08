@@ -14,7 +14,9 @@ export default function Sidebar() {
             <span className="text-white font-bold text-base">W</span>
           </div>
           <div>
-            <div className="text-base font-bold text-gray-900 leading-tight">WorkZen</div>
+            <div className="text-base font-bold text-gray-900 leading-tight">
+              WorkZen
+            </div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wide leading-tight">
               HRMS
             </p>
@@ -88,7 +90,7 @@ export default function Sidebar() {
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
-            viewBox="0 0 24 24"
+            viewBox="0 0 24 23"
           >
             <path
               strokeLinecap="round"
