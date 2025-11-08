@@ -14,6 +14,8 @@ import Employees from "./pages/Employees";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import { AuthProvider, useAuth } from "./context/AuthProvider";
 import "./App.css";
+import VerifyOtp from "./pages/VerifyOtp";
+import TimeOff from "./pages/TimeOff";
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -49,9 +51,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/timeoff" element={<TimeOff />} />
 
           {/* Dashboard Routes with Layout */}
           <Route
