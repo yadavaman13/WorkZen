@@ -16,6 +16,8 @@ import { AuthProvider, useAuth } from "./context/AuthProvider";
 import "./App.css";
 import VerifyOtp from "./pages/VerifyOtp";
 import TimeOff from "./pages/TimeOff";
+import Reports from './pages/Reports'
+import Profile from './pages/Profile'
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -56,7 +58,13 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/timeoff" element={<TimeOff />} />
+          <Route path="/dashboard/reports" element={<Reports />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
 
+          {/* <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
+          <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
+          <Route path="/dashboard/payroll" element={<Protected roles={["payroll", "admin"]}><PayrollDashboard /></Protected>} />
+          <Route path="/dashboard/admin" element={<Protected roles={["admin"]}><AdminDashboard /></Protected>} /> */}
           {/* Dashboard Routes with Layout */}
           <Route
             path="/dashboard"
