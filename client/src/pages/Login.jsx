@@ -76,6 +76,12 @@ export default function Login(){
             {errors.password && <p className="text-red-600 text-xs mt-1 font-bold">{errors.password}</p>}
           </div>
 
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm font-medium" style={{color:'#A24689'}}>
+              Forgot password?
+            </Link>
+          </div>
+
           <button className="w-full p-3 rounded brand-btn font-medium text-white hover:opacity-90 transition">
             Login
           </button>
