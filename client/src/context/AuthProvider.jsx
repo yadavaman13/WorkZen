@@ -45,7 +45,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user')
     setToken(null)
     setUser(null)
-    navigate('/login')
+    delete api.defaults.headers.common['Authorization']
+    navigate('/')
   }
 
   return (

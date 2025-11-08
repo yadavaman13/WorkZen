@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Dashboard from './pages/Dashboard'
 import EmployeeDashboard from './pages/DashboardEmployee'
 import HRDashboard from './pages/DashboardHR'
 import PayrollDashboard from './pages/DashboardPayroll'
@@ -18,6 +19,22 @@ function Protected({ children, roles }) {
   return children;
 }
 
+function DashboardRedirect() {
+  const { user } = useAuth();
+  
+  if (!user) return <Navigate to="/login" replace />;
+  
+  // Redirect based on user role
+  const roleRoutes = {
+    admin: '/dashboard',
+    hr: '/dashboard',
+    payroll: '/dashboard',
+    employee: '/dashboard'
+  };
+  
+  return <Navigate to={roleRoutes[user.role] || '/dashboard/employee'} replace />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -28,6 +45,9 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* General dashboard route - redirects based on role */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/dashboard/employee" element={<Protected roles={["employee","hr","payroll","admin"]}><EmployeeDashboard /></Protected>} />
           <Route path="/dashboard/hr" element={<Protected roles={["hr","admin"]}><HRDashboard /></Protected>} />
