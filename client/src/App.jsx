@@ -100,9 +100,9 @@ function App() {
           />
 
           <Route
-            path="/dashboard/time-off"
+            path="/dashboard/timeoff"
             element={
-              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+              // <Protected roles={["employee", "hr", "payroll", "admin"]}>
                 <DashboardLayout>
                   <div>
                     <h1 className="text-2xl font-bold mb-4">Time Off</h1>
@@ -111,7 +111,7 @@ function App() {
                     </p>
                   </div>
                 </DashboardLayout>
-              </Protected>
+              // </Protected>
             }
           />
 
