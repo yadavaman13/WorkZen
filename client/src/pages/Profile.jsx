@@ -12,6 +12,10 @@ export default function Profile() {
     phone: "",
     profile_completion: 0,
     created_at: "",
+    bank_name: "",
+    account_number: "",
+    ifsc_code: "",
+    account_holder_name: "",
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -23,15 +27,43 @@ export default function Profile() {
       company_name: "WorkZen Technologies",
       name: user?.name || "John Doe",
       email: user?.email || "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
+      phone: "1234567890",
       profile_completion: 85,
       created_at: "2024-01-15T10:30:00Z",
+      bank_name: "State Bank of India",
+      account_number: "1234567890123456",
+      ifsc_code: "SBIN0001234",
+      account_holder_name: "John Doe",
     };
     setProfileData(mockData);
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validation for phone number - only digits, max 10
+    if (name === "phone") {
+      const digitsOnly = value.replace(/\D/g, "");
+      if (digitsOnly.length <= 10) {
+        setProfileData((prev) => ({
+          ...prev,
+          [name]: digitsOnly,
+        }));
+      }
+      return;
+    }
+    
+    // Validation for account number - only positive integers
+    if (name === "account_number") {
+      const digitsOnly = value.replace(/\D/g, "");
+      setProfileData((prev) => ({
+        ...prev,
+        [name]: digitsOnly,
+      }));
+      return;
+    }
+    
+    // Default handling for other fields
     setProfileData((prev) => ({
       ...prev,
       [name]: value,
@@ -57,10 +89,10 @@ export default function Profile() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         {/* Header */}
         <div className="mb-8 text-left">
-          <h1 className="text-3xl font-bold text-gray-900 ">User Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 ">My Profile</h1>
           <p className="text-sm text-gray-500 mt-2">
             Manage your personal information and account details
           </p>
@@ -166,6 +198,8 @@ export default function Profile() {
                   value={profileData.email}
                   onChange={handleInputChange}
                   disabled={!isEditing}
+                  required
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
                     isEditing
                       ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
@@ -185,12 +219,15 @@ export default function Profile() {
                   value={profileData.phone}
                   onChange={handleInputChange}
                   disabled={!isEditing}
+                  placeholder="1234567890"
+                  maxLength={10}
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
                     isEditing
                       ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
                       : "bg-gray-50 text-gray-700 cursor-not-allowed"
                   }`}
                 />
+                <p className="text-xs text-gray-500 mt-1">10 digits only</p>
               </div>
 
               {/* Account Created Date */}
@@ -204,6 +241,92 @@ export default function Profile() {
                   disabled
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
                 />
+              </div>
+            </div>
+
+            {/* Bank Details Section */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Bank Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Bank Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_name"
+                    value={profileData.bank_name}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
+                      isEditing
+                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
+                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+
+                {/* Account Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Account Number
+                  </label>
+                  <input
+                    type="text"
+                    name="account_number"
+                    value={profileData.account_number}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    placeholder="Enter digits only"
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
+                      isEditing
+                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
+                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+
+                {/* IFSC Code */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    IFSC Code
+                  </label>
+                  <input
+                    type="text"
+                    name="ifsc_code"
+                    value={profileData.ifsc_code}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    maxLength={11}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
+                      isEditing
+                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
+                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
+
+                {/* Account Holder Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Account Holder Name
+                  </label>
+                  <input
+                    type="text"
+                    name="account_holder_name"
+                    value={profileData.account_holder_name}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
+                      isEditing
+                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
+                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
+                    }`}
+                  />
+                </div>
               </div>
             </div>
 
@@ -227,7 +350,7 @@ export default function Profile() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Complete your profile to unlock all features
+                Complete your profile as soon as possible.
               </p>
             </div>
           </form>
