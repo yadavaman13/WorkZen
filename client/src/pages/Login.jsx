@@ -192,7 +192,7 @@ export default function Login(){
             </button>
           </form>
           
-          {/* Register Link
+          {/* Register Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
@@ -204,7 +204,7 @@ export default function Login(){
                 Create Account
               </Link>
             </p>
-          </div> */}
+          </div>
 
           {/* Divider */}
           <div className="mt-6 flex items-center">
