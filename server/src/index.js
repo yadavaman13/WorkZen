@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./config/db');
 const { cleanupExpiredTokens, getTokenStats } = require('./jobs/cleanupResetTokens');
+const { scheduleOtpCleanup } = require('./jobs/cleanupOtps');
+const { verifyGmailConnection } = require('./config/gmail');
 
 dotenv.config();
 
@@ -12,8 +14,18 @@ app.use(express.json());
 
 // initialize DB (create tables if needed)
 db.init()
-  .then(() => {
+  .then(async () => {
     console.log('✅ Database initialized');
+    
+    // Verify Gmail SMTP if enabled
+    if (process.env.USE_GMAIL_SMTP === 'true') {
+      const gmailConnected = await verifyGmailConnection();
+      if (gmailConnected) {
+        console.log('✅ Gmail SMTP is ready - Can send to ANY email address!');
+      } else {
+        console.warn('⚠️ Gmail SMTP verification failed - Check your EMAIL_USER and EMAIL_PASS in .env');
+      }
+    }
     
     // Run cleanup job immediately on startup
     cleanupExpiredTokens()
@@ -31,6 +43,9 @@ db.init()
         console.log(`📊 Token stats: ${stats.active} active, ${stats.used} used, ${stats.expired} expired`);
       }
     }, 60 * 60 * 1000); // 1 hour
+    
+    // Schedule OTP cleanup job (runs every 60 minutes)
+    scheduleOtpCleanup(60);
   })
   .catch((err) => {
     console.error('❌ DB init error', err);

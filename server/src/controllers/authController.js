@@ -3,7 +3,9 @@ const { hashPassword, comparePassword } = require('../utils/hashPassword');
 const generateToken = require('../utils/generateToken');
 const { generateEmployeeId } = require('../utils/generateEmployeeId');
 const { generateToken: generateResetToken, generateTokenExpiry } = require('../utils/tokenUtil');
-const { sendPasswordResetEmail } = require('../config/resend');
+const { sendPasswordResetEmail, sendOtpEmail } = require('../config/resend');
+const { generateOtp, hashOtp, compareOtp, generateOtpExpiry } = require('../utils/otpUtil');
+const { otpVerificationTemplate, welcomeEmailTemplate } = require('../utils/mailTemplates');
 
 async function register(req, res) {
   try {
@@ -36,7 +38,13 @@ async function register(req, res) {
     }
     
     const existing = await db('users').where({ email }).first();
-    if (existing) return res.status(400).json({ msg: 'Email already in use' });
+    if (existing) {
+      if (existing.status === 'active') {
+        return res.status(400).json({ msg: 'Email already registered and verified' });
+      } else if (existing.status === 'pending') {
+        return res.status(400).json({ msg: 'Email already registered. Please verify your OTP or request a new one.' });
+      }
+    }
     
     // Generate employee ID
     const employeeId = await generateEmployeeId(companyName, name);
@@ -48,13 +56,49 @@ async function register(req, res) {
       name, 
       email, 
       phone,
-      password: hashed 
+      password: hashed,
+      status: 'pending' // Set status to pending until OTP verification
     }).returning(['id', 'employee_id', 'name', 'email', 'role', 'status', 'company_name', 'phone']);
     
-    // log
-    await db('audit_logs').insert({ actor_id: user.id, action: 'User registered', target_id: user.id });
-    const token = generateToken(user);
-    return res.json({ user, token, redirect: determineRedirect(user.role) });
+    // Generate OTP
+    const otp = generateOtp(6); // 6-digit OTP
+    const otpHash = await hashOtp(otp);
+    const expiresAt = generateOtpExpiry(10); // 10 minutes expiry
+    
+    // Store OTP in database
+    await db('email_otps').insert({
+      email,
+      otp_hash: otpHash,
+      otp_plain: process.env.NODE_ENV === 'development' ? otp : null, // Only store plain in dev
+      expires_at: expiresAt,
+      used: false,
+      attempts: 0
+    });
+    
+    // Send OTP email
+    try {
+      const htmlContent = otpVerificationTemplate(name, otp, 10);
+      await sendOtpEmail(email, 'Verify Your Email - WorkZen HRMS', htmlContent);
+      console.log(`✅ OTP sent to ${email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send OTP email:', emailError);
+      // Clean up user and OTP if email fails
+      await db('email_otps').where({ email }).delete();
+      await db('users').where({ id: user.id }).delete();
+      return res.status(500).json({ msg: 'Failed to send verification email. Please try again.' });
+    }
+    
+    // Log audit
+    await db('audit_logs').insert({ 
+      actor_id: user.id, 
+      action: 'User registered - pending OTP verification', 
+      target_id: user.id 
+    });
+    
+    return res.json({ 
+      msg: 'Registration successful! Please check your email for the verification code.',
+      email: email
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'Server error' });
@@ -263,4 +307,181 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { register, login, requestPasswordReset, resetPassword };
+// Verify OTP after registration
+async function verifyOtp(req, res) {
+  try {
+    const { email, otp } = req.body;
+    
+    if (!email || !otp) {
+      return res.status(400).json({ msg: 'Email and OTP are required' });
+    }
+    
+    // Find user
+    const user = await db('users').where({ email }).first();
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    if (user.status === 'active') {
+      return res.status(400).json({ msg: 'Email already verified' });
+    }
+    
+    // Find valid OTP
+    const otpRecord = await db('email_otps')
+      .where({ email, used: false })
+      .where('expires_at', '>', new Date())
+      .orderBy('created_at', 'desc')
+      .first();
+    
+    if (!otpRecord) {
+      return res.status(400).json({ msg: 'Invalid or expired OTP. Please request a new one.' });
+    }
+    
+    // Check max attempts (3 attempts allowed)
+    if (otpRecord.attempts >= 3) {
+      await db('email_otps').where({ id: otpRecord.id }).update({ used: true });
+      return res.status(400).json({ msg: 'Maximum OTP attempts exceeded. Please request a new OTP.' });
+    }
+    
+    // Verify OTP
+    const isValid = await compareOtp(otp, otpRecord.otp_hash);
+    
+    if (!isValid) {
+      // Increment attempts
+      await db('email_otps').where({ id: otpRecord.id }).increment('attempts', 1);
+      const remainingAttempts = 3 - (otpRecord.attempts + 1);
+      return res.status(400).json({ 
+        msg: `Invalid OTP. ${remainingAttempts} attempt(s) remaining.` 
+      });
+    }
+    
+    // Mark OTP as used
+    await db('email_otps').where({ id: otpRecord.id }).update({ used: true });
+    
+    // Activate user
+    await db('users').where({ email }).update({ status: 'active' });
+    
+    // Send welcome email
+    try {
+      const dashboardUrl = process.env.FRONTEND_URL || 'http://localhost:5173/dashboard';
+      const htmlContent = welcomeEmailTemplate(user.name, dashboardUrl);
+      await sendOtpEmail(email, 'Welcome to WorkZen HRMS!', htmlContent);
+      console.log(`✅ Welcome email sent to ${email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send welcome email:', emailError);
+      // Continue anyway - user is verified
+    }
+    
+    // Log audit
+    await db('audit_logs').insert({ 
+      actor_id: user.id, 
+      action: 'Email verified via OTP', 
+      target_id: user.id 
+    });
+    
+    // Get updated user
+    const verifiedUser = await db('users')
+      .where({ email })
+      .first(['id', 'employee_id', 'name', 'email', 'role', 'status', 'company_name', 'phone']);
+    
+    // Generate token
+    const token = generateToken(verifiedUser);
+    
+    return res.json({ 
+      msg: 'Email verified successfully!',
+      user: verifiedUser, 
+      token, 
+      redirect: determineRedirect(verifiedUser.role) 
+    });
+    
+  } catch (err) {
+    console.error('verifyOtp error:', err);
+    return res.status(500).json({ msg: 'Server error' });
+  }
+}
+
+// Resend OTP
+async function resendOtp(req, res) {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ msg: 'Email is required' });
+    }
+    
+    // Find user
+    const user = await db('users').where({ email }).first();
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    if (user.status === 'active') {
+      return res.status(400).json({ msg: 'Email already verified' });
+    }
+    
+    // Check for recent OTP (rate limiting - prevent spam)
+    const recentOtp = await db('email_otps')
+      .where({ email })
+      .where('created_at', '>', new Date(Date.now() - 60 * 1000)) // Last 60 seconds
+      .first();
+    
+    if (recentOtp) {
+      return res.status(429).json({ 
+        msg: 'Please wait 60 seconds before requesting a new OTP' 
+      });
+    }
+    
+    // Mark all previous OTPs as used
+    await db('email_otps').where({ email, used: false }).update({ used: true });
+    
+    // Generate new OTP
+    const otp = generateOtp(6);
+    const otpHash = await hashOtp(otp);
+    const expiresAt = generateOtpExpiry(10); // 10 minutes
+    
+    // Store new OTP
+    await db('email_otps').insert({
+      email,
+      otp_hash: otpHash,
+      otp_plain: process.env.NODE_ENV === 'development' ? otp : null,
+      expires_at: expiresAt,
+      used: false,
+      attempts: 0
+    });
+    
+    // Send OTP email
+    try {
+      const htmlContent = otpVerificationTemplate(user.name, otp, 10);
+      await sendOtpEmail(email, 'Verify Your Email - WorkZen HRMS', htmlContent);
+      console.log(`✅ OTP resent to ${email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to resend OTP email:', emailError);
+      return res.status(500).json({ msg: 'Failed to send verification email. Please try again.' });
+    }
+    
+    // Log audit
+    await db('audit_logs').insert({ 
+      actor_id: user.id, 
+      action: 'OTP resent', 
+      target_id: user.id 
+    });
+    
+    return res.json({ 
+      msg: 'New verification code sent to your email',
+      email: email
+    });
+    
+  } catch (err) {
+    console.error('resendOtp error:', err);
+    return res.status(500).json({ msg: 'Server error' });
+  }
+}
+
+module.exports = {
+  register,
+  login,
+  requestPasswordReset,
+  resetPassword,
+  verifyOtp,
+  resendOtp
+};
