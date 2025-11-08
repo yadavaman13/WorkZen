@@ -18,6 +18,7 @@ import VerifyOtp from "./pages/VerifyOtp";
 import TimeOff from "./pages/TimeOff";
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
+import Payroll from './pages/Payroll'
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -60,6 +61,7 @@ function App() {
           <Route path="/dashboard/timeoff" element={<TimeOff />} />
           <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/dashboard/profile" element={<Profile />} />
+          <Route path="/dashboard/payroll" element={<Payroll />} />
 
           {/* <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
           <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
