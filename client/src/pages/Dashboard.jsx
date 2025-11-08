@@ -9,9 +9,12 @@ function EmployeeCard({ employee }) {
       {/* Employee Avatar */}
       <div className="flex flex-col items-center">
         {/* Avatar Circle */}
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors">
+        <div
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-colors"
+          style={{ backgroundColor: "#A24689" }}
+        >
           <svg
-            className="w-10 h-10 text-gray-400"
+            className="w-10 h-10 text-white"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -29,23 +32,7 @@ function EmployeeCard({ employee }) {
           <h3 className="text-base font-semibold text-gray-900 mb-1">
             {employee.first_name} {employee.last_name}
           </h3>
-          <p className="text-xs text-gray-500 mb-3">
-            {employee.email}
-          </p>
-          
-          {/* Status Badge */}
-          <div className="flex items-center justify-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-              employee.status === 'active' 
-                ? 'bg-gray-100 text-gray-700' 
-                : 'bg-gray-50 text-gray-500'
-            }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                employee.status === 'active' ? 'bg-gray-600' : 'bg-gray-400'
-              }`}></span>
-              {employee.status.charAt(0).toUpperCase() + employee.status.slice(1)}
-            </span>
-          </div>
+          <p className="text-xs text-gray-500">{employee.email}</p>
         </div>
       </div>
     </div>
@@ -73,9 +60,11 @@ export default function Employees() {
     const matchesSearch = `${emp.first_name} ${emp.last_name}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    
-    const matchesDepartment = departmentFilter === "all" || emp.department_id === parseInt(departmentFilter);
-    
+
+    const matchesDepartment =
+      departmentFilter === "all" ||
+      emp.department_id === parseInt(departmentFilter);
+
     return matchesSearch && matchesDepartment;
   });
 
@@ -90,9 +79,22 @@ export default function Employees() {
               Manage your team and employee information
             </p>
           </div>
-          <button className="px-4 py-2.5 text-white text-sm font-medium rounded-lg hover:opacity-90 active:opacity-80 transition-all shadow-sm flex items-center gap-2" style={{ backgroundColor: '#A24689' }}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          <button
+            className="px-4 py-2.5 text-white text-sm font-medium rounded-lg hover:opacity-90 active:opacity-80 transition-all shadow-sm flex items-center gap-2"
+            style={{ backgroundColor: "#A24689" }}
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add Employee
           </button>
@@ -126,11 +128,11 @@ export default function Employees() {
           </div>
 
           <div className="relative" ref={filterRef}>
-            <button 
+            <button
               onClick={() => setShowFilter(!showFilter)}
               className={`px-4 py-2.5 border rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
-                departmentFilter !== "all" 
-                  ? "border-gray-900 bg-gray-900 text-white" 
+                departmentFilter !== "all"
+                  ? "border-gray-900 bg-gray-900 text-white"
                   : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
@@ -147,9 +149,7 @@ export default function Employees() {
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 />
               </svg>
-              <span>
-                Filter
-              </span>
+              <span>Filter</span>
             </button>
 
             {/* Filter Dropdown */}
@@ -169,20 +169,29 @@ export default function Employees() {
                         onChange={(e) => setDepartmentFilter(e.target.value)}
                         className="w-4 h-4 text-gray-900 focus:ring-gray-900"
                       />
-                      <span className="text-sm text-gray-700 font-medium">All Departments</span>
+                      <span className="text-sm text-gray-700 font-medium">
+                        All Departments
+                      </span>
                     </label>
                     {departments.map((dept) => (
-                      <label key={dept.department_id} className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                      <label
+                        key={dept.department_id}
+                        className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                      >
                         <input
                           type="radio"
                           name="department"
                           value={dept.department_id.toString()}
-                          checked={departmentFilter === dept.department_id.toString()}
+                          checked={
+                            departmentFilter === dept.department_id.toString()
+                          }
                           onChange={(e) => setDepartmentFilter(e.target.value)}
                           className="w-4 h-4 focus:ring-2"
-                          style={{ accentColor: '#A24689' }}
+                          style={{ accentColor: "#A24689" }}
                         />
-                        <span className="text-sm text-gray-700">{dept.department_name}</span>
+                        <span className="text-sm text-gray-700">
+                          {dept.department_name}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -198,7 +207,7 @@ export default function Employees() {
                     <button
                       onClick={() => setShowFilter(false)}
                       className="flex-1 px-3 py-2 text-sm font-medium text-white rounded-md hover:opacity-90 transition-all"
-                      style={{ backgroundColor: '#A24689' }}
+                      style={{ backgroundColor: "#A24689" }}
                     >
                       Apply
                     </button>

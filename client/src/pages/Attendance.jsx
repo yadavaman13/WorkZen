@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout";
 
 export default function Attendance() {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 22)); // October 22, 2025
@@ -46,10 +45,9 @@ export default function Attendance() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="p-8">
-        {/* Header */}
-        <div className="mb-8">
+    <>
+      {/* Header */}
+      <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             For Employees
           </h1>
@@ -211,7 +209,6 @@ export default function Attendance() {
             </table>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+    </>
   );
 }

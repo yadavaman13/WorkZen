@@ -1,17 +1,62 @@
 // src/pages/Employees.jsx
 import { useState, useEffect, useRef } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import { employees, departments } from "../data/hrms.js";
 
-function EmployeeCard({ employee }) {
+function EmployeeCard({ employee, onClick }) {
+  // Determine status indicator
+  // You can customize this logic based on your employee data structure
+  const getStatusIndicator = () => {
+    const status = employee.attendance_status || employee.status || "present";
+
+    if (status === "on_leave" || status === "leave") {
+      // Airplane icon for on leave
+      return (
+        <div
+          className="absolute top-3 right-3 bg-blue-100 p-1.5 rounded-full"
+          title="On Leave"
+        >
+          <svg
+            className="w-3.5 h-3.5 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+          </svg>
+        </div>
+      );
+    } else if (status === "absent") {
+      // Yellow dot for absent
+      return (
+        <div
+          className="absolute top-3 right-3 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white shadow-sm"
+          title="Absent"
+        ></div>
+      );
+    } else {
+      // Green dot for present (default)
+      return (
+        <div
+          className="absolute top-3 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"
+          title="Present"
+        ></div>
+      );
+    }
+  };
+
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-gray-300 transition-all group">
+    <div
+      onClick={onClick}
+      className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-gray-300 transition-all group cursor-pointer relative"
+    >
+      {/* Status Indicator */}
+      {getStatusIndicator()}
+
       {/* Employee Avatar */}
       <div className="flex flex-col items-center">
         {/* Avatar Circle */}
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors">
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-colors bg-gray-100">
           <svg
-            className="w-10 h-10 text-gray-400"
+            className="w-10 h-10 text-gray-600"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -29,28 +74,162 @@ function EmployeeCard({ employee }) {
           <h3 className="text-base font-semibold text-gray-900 mb-1">
             {employee.first_name} {employee.last_name}
           </h3>
-          <p className="text-xs text-gray-500 mb-3">{employee.email}</p>
-
-          {/* Status Badge */}
-          <div className="flex items-center justify-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                employee.status === "active"
-                  ? "bg-gray-100 text-gray-700"
-                  : "bg-gray-50 text-gray-500"
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  employee.status === "active" ? "bg-gray-600" : "bg-gray-400"
-                }`}
-              ></span>
-              {employee.status.charAt(0).toUpperCase() +
-                employee.status.slice(1)}
-            </span>
-          </div>
+          <p className="text-xs text-gray-500">{employee.email}</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function EmployeeModal({ employee, onClose }) {
+  if (!employee) return null;
+
+  // Format date if available
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-gray-900/40 backdrop-blur-lg flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Employee Details
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {/* Avatar and Basic Info */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 bg-gray-100">
+              <svg
+                className="w-12 h-12 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+              {employee.name ||
+                `${employee.first_name} ${employee.last_name}` ||
+                "N/A"}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {employee.email || "No email available"}
+            </p>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DetailItem
+              label="Employee ID"
+              value={employee.employee_id || "N/A"}
+            />
+            <DetailItem
+              label="Company Name"
+              value={employee.company_name || "N/A"}
+            />
+            <DetailItem label="Phone" value={employee.phone || "N/A"} />
+            <DetailItem label="Role" value={employee.role || "N/A"} />
+            <DetailItem label="Status" value={employee.status || "Active"} />
+            <DetailItem
+              label="Profile Completion"
+              value={
+                employee.profile_completion
+                  ? `${employee.profile_completion}%`
+                  : "N/A"
+              }
+            />
+            <DetailItem
+              label="Join Date"
+              value={formatDate(employee.created_at)}
+            />
+          </div>
+
+          {/* No Additional Info Message */}
+          {!employee.company_name &&
+            !employee.phone &&
+            !employee.role &&
+            !employee.created_at && (
+              <div className="mt-6 text-center py-8">
+                <svg
+                  className="w-16 h-16 mx-auto text-gray-300 mb-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-gray-500 text-sm">
+                  No additional information available
+                </p>
+              </div>
+            )}
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-xl">
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailItem({ label, value }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4">
+      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-gray-900">{value}</p>
     </div>
   );
 }
@@ -59,6 +238,8 @@ export default function Employees() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [attendanceFilter, setAttendanceFilter] = useState("all");
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const filterRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -81,138 +262,125 @@ export default function Employees() {
       departmentFilter === "all" ||
       emp.department_id === parseInt(departmentFilter);
 
-    return matchesSearch && matchesDepartment;
+    const empStatus = emp.attendance_status || emp.status || "present";
+    const matchesAttendance =
+      attendanceFilter === "all" ||
+      (attendanceFilter === "present" && empStatus === "present") ||
+      (attendanceFilter === "on_leave" &&
+        (empStatus === "on_leave" || empStatus === "leave")) ||
+      (attendanceFilter === "absent" && empStatus === "absent");
+
+    return matchesSearch && matchesDepartment && matchesAttendance;
   });
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Employees</h1>
-            <p className="text-sm text-gray-500">
-              Manage your team and employee information
-            </p>
-          </div>
-          <button className="px-4 py-2.5 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 brand-btn">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Add Employee
-          </button>
-        </div>
+      <div className="mb-4">
+        {/* Title with Search and Filter on same line */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
 
-        {/* Search and Filter Row */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <svg
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            {/* Search Bar with Filter */}
+            <div className="w-80 relative" ref={filterRef}>
+              <div className="relative">
+                <svg
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search employees..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder-gray-400"
                 />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search employees..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder-gray-400"
-              />
-            </div>
-          </div>
+                {/* Filter Icon Button */}
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-gray-100 transition-colors ${
+                    departmentFilter !== "all"
+                      ? "text-gray-900 bg-gray-100"
+                      : "text-gray-400"
+                  }`}
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-          <div className="relative" ref={filterRef}>
-            <button
-              onClick={() => setShowFilter(!showFilter)}
-              className={`px-4 py-2.5 border rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
-                departmentFilter !== "all"
-                  ? "border-gray-900 bg-gray-900 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                />
-              </svg>
-              <span>Filter</span>
-            </button>
-
-            {/* Filter Dropdown */}
-            {showFilter && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10">
-                <div className="p-4">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Department
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
-                      <input
-                        type="radio"
-                        name="department"
-                        value="all"
-                        checked={departmentFilter === "all"}
-                        onChange={(e) => setDepartmentFilter(e.target.value)}
-                        className="w-4 h-4 text-gray-900 focus:ring-gray-900"
-                      />
-                      <span className="text-sm text-gray-700 font-medium">
-                        All Departments
-                      </span>
-                    </label>
-                    {departments.map((dept) => (
-                      <label
-                        key={dept.department_id}
-                        className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
-                      >
+              {/* Filter Dropdown */}
+              {showFilter && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10">
+                  <div className="p-4">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                      Department
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                         <input
                           type="radio"
                           name="department"
-                          value={dept.department_id.toString()}
-                          checked={
-                            departmentFilter === dept.department_id.toString()
-                          }
+                          value="all"
+                          checked={departmentFilter === "all"}
                           onChange={(e) => setDepartmentFilter(e.target.value)}
                           className="w-4 h-4 text-gray-900 focus:ring-gray-900"
                         />
-                        <span className="text-sm text-gray-700">
-                          {dept.department_name}
+                        <span className="text-sm text-gray-700 font-medium">
+                          All Departments
                         </span>
                       </label>
-                    ))}
+                      {departments.map((dept) => (
+                        <label
+                          key={dept.department_id}
+                          className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="radio"
+                            name="department"
+                            value={dept.department_id.toString()}
+                            checked={
+                              departmentFilter === dept.department_id.toString()
+                            }
+                            onChange={(e) =>
+                              setDepartmentFilter(e.target.value)
+                            }
+                            className="w-4 h-4 text-gray-900 focus:ring-gray-900"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {dept.department_name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-gray-200 flex gap-2">
+                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex gap-2 -mx-0 -mb-0">
                     <button
                       onClick={() => {
                         setDepartmentFilter("all");
                       }}
-                      className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
+                      className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-md border border-gray-300 transition-colors bg-white"
                     >
                       Clear
                     </button>
@@ -224,16 +392,97 @@ export default function Employees() {
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Add Employee Button */}
+            <button className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 brand-btn">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Employee
+            </button>
           </div>
+
+          {/* Placeholder for right side if needed */}
+          <div></div>
+        </div>
+
+        {/* Quick Filter Cards */}
+        <div className="flex items-center gap-3 mt-8">
+          <span className="text-sm font-medium text-gray-600">
+            Quick Filter:
+          </span>
+          <button
+            onClick={() => setAttendanceFilter("all")}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              attendanceFilter === "all"
+                ? "bg-gray-700 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setAttendanceFilter("present")}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              attendanceFilter === "present"
+                ? "bg-gray-700 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+            Present
+          </button>
+          <button
+            onClick={() => setAttendanceFilter("on_leave")}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              attendanceFilter === "on_leave"
+                ? "bg-gray-700 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            </svg>
+            On Leave
+          </button>
+          <button
+            onClick={() => setAttendanceFilter("absent")}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              attendanceFilter === "absent"
+                ? "bg-gray-700 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+            Absent
+          </button>
         </div>
       </div>
 
       {/* Employee Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
         {filteredEmployees.map((employee) => (
-          <EmployeeCard key={employee.employee_id} employee={employee} />
+          <EmployeeCard
+            key={employee.employee_id}
+            employee={employee}
+            onClick={() => setSelectedEmployee(employee)}
+          />
         ))}
       </div>
 
@@ -243,6 +492,14 @@ export default function Employees() {
           No employees found matching "{searchQuery}"
         </div>
       )}
-    </DashboardLayout>
+
+      {/* Employee Modal */}
+      {selectedEmployee && (
+        <EmployeeModal
+          employee={selectedEmployee}
+          onClose={() => setSelectedEmployee(null)}
+        />
+      )}
+    </>
   );
 }
