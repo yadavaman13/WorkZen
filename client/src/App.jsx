@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import EmployeeDashboard from './pages/DashboardEmployee'
 import HRDashboard from './pages/DashboardHR'
@@ -24,10 +26,10 @@ function DashboardRedirect() {
   
   // Redirect based on user role
   const roleRoutes = {
-    admin: '/dashboard/admin',
-    hr: '/dashboard/hr',
-    payroll: '/dashboard/payroll',
-    employee: '/dashboard/employee'
+    admin: '/dashboard',
+    hr: '/dashboard',
+    payroll: '/dashboard',
+    employee: '/dashboard'
   };
   
   return <Navigate to={roleRoutes[user.role] || '/dashboard/employee'} replace />;
@@ -41,9 +43,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* General dashboard route - redirects based on role */}
-          <Route path="/dashboard" element={<DashboardRedirect />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/dashboard/employee" element={<Protected roles={["employee","hr","payroll","admin"]}><EmployeeDashboard /></Protected>} />
           <Route path="/dashboard/hr" element={<Protected roles={["hr","admin"]}><HRDashboard /></Protected>} />
