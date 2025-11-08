@@ -1,10 +1,30 @@
-# Environment variables - CONFIDENTIAL
+# ========================================
+# CONFIDENTIAL FILES - NEVER COMMIT
+# ========================================
+
+# Environment variables - Contains Gmail password, JWT secrets, DB credentials
 .env
 .env.local
 .env.development
 .env.test
 .env.production
 *.env
+
+# Configuration files with sensitive data
+config.local.js
+secrets.json
+credentials.json
+*.pem
+*.key
+*.cert
+
+# Email service credentials
+gmail-credentials.json
+email-config.json
+
+# Database credentials
+database.json
+db-config.json
 
 # Dependencies
 node_modules/
