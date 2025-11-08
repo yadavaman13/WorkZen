@@ -95,7 +95,7 @@ export default function Employees() {
               Manage your team and employee information
             </p>
           </div>
-          <button className="px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 active:bg-purple-800 transition-colors shadow-sm flex items-center gap-2">
+          <button className="px-4 py-2.5 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 brand-btn">
             <svg
               className="w-4 h-4"
               fill="none"

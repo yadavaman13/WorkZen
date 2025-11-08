@@ -10,6 +10,7 @@ import LandingPage from "./pages/LandingPage";
 import Attendance from "./pages/Attendance";
 import { AuthProvider, useAuth } from "./context/AuthProvider";
 import "./App.css";
+import Employees from "./pages/Employees";
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -47,7 +48,7 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           {/* General dashboard route - redirects based on role */}
-          <Route path="/dashboard" element={<DashboardRedirect />} />
+          <Route path="/dashboard" element={<Employees />} />
 
           <Route
             path="/dashboard/employee"
