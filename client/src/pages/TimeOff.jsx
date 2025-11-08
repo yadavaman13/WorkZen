@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
+import SmartSchedulingAssistant from "../components/SmartSchedulingAssistant.jsx";
+import axios from "../api/axios";
 
 export default function TimeOff() {
   const [activeTab, setActiveTab] = useState("timeOff");
@@ -7,35 +9,59 @@ export default function TimeOff() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
+  const [timeOffRequests, setTimeOffRequests] = useState([]);
+  const [leaveBalance, setLeaveBalance] = useState({
+    paid_leave_balance: 24,
+    sick_leave_balance: 7
+  });
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
     toDate: "",
     durationType: "",
-    reason: "",
+    description: "",
     contactNumber: "",
     document: null,
   });
 
-  // Sample data - replace with API call later
-  const timeOffRequests = [
-    {
-      id: 1,
-      employeeName: "[Employee Name]",
-      startDate: "28/10/2025",
-      endDate: "28/10/2025",
-      type: "Paid time Off",
-      status: "pending",
-      description: "given by the user",
-      balanceBefore: "1 Days",
-      balanceAfter: "0 Days",
-      teamMembersOnLeave: 3,
-      workloadRisk: "Medium",
-      productivityImpact: "4 hours",
-      payrollImpact: "₹2,500",
-      criticalRoleFlag: "Yes",
-    },
-  ];
+  // Fetch time off requests and leave balance on mount
+  useEffect(() => {
+    fetchTimeOffRequests();
+    fetchLeaveBalance();
+  }, []);
+
+  const fetchTimeOffRequests = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.get("/api/timeoff", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setTimeOffRequests(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching time off requests:", error);
+      alert("Failed to fetch time off requests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchLeaveBalance = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("/api/timeoff/balance", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setLeaveBalance(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching leave balance:", error);
+    }
+  };
 
   const handleNewRequest = () => {
     setShowNewRequestModal(true);
@@ -48,7 +74,7 @@ export default function TimeOff() {
       fromDate: "",
       toDate: "",
       durationType: "",
-      reason: "",
+      description: "",
       contactNumber: "",
       document: null,
     });
@@ -69,12 +95,58 @@ export default function TimeOff() {
     }));
   };
 
-  const handleSubmitRequest = (e) => {
+  const handleApplySuggestion = (suggestedDates) => {
+    setFormData((prev) => ({
+      ...prev,
+      fromDate: suggestedDates.fromDate,
+      toDate: suggestedDates.toDate
+    }));
+  };
+
+  const handleSubmitRequest = async (e) => {
     e.preventDefault();
-    // TODO: Implement API call to submit the request
-    console.log("Form Data:", formData);
-    alert("Time off request submitted!");
-    handleCloseNewRequestModal();
+    
+    // Validate sick leave attachment
+    if (formData.leaveType === 'Sick' && !formData.document) {
+      alert('Medical certificate is mandatory for sick leave');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      // Create FormData for file upload
+      const submitData = new FormData();
+      submitData.append('leaveType', formData.leaveType);
+      submitData.append('fromDate', formData.fromDate);
+      submitData.append('toDate', formData.toDate);
+      submitData.append('durationType', formData.durationType);
+      submitData.append('description', formData.description);
+      submitData.append('contactNumber', formData.contactNumber);
+      if (formData.document) {
+        submitData.append('document', formData.document);
+      }
+      
+      const response = await axios.post("/api/timeoff", submitData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (response.data.success) {
+        alert("Time off request submitted successfully!");
+        handleCloseNewRequestModal();
+        fetchTimeOffRequests();
+        fetchLeaveBalance();
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert(error.response?.data?.message || "Failed to submit request");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleViewDetails = (request) => {
@@ -87,17 +159,69 @@ export default function TimeOff() {
     setSelectedRequest(null);
   };
 
-  const handleApprove = () => {
-    // TODO: Implement approve logic
-    alert("Request Approved");
-    handleCloseModal();
+  const handleApprove = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `/api/timeoff/${selectedRequest.id}/approve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.success) {
+        alert("Request Approved");
+        handleCloseModal();
+        fetchTimeOffRequests();
+        fetchLeaveBalance();
+      }
+    } catch (error) {
+      console.error("Error approving request:", error);
+      alert(error.response?.data?.message || "Failed to approve request");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = () => {
-    // TODO: Implement reject logic
-    alert("Request Rejected");
-    handleCloseModal();
+  const handleReject = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `/api/timeoff/${selectedRequest.id}/reject`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.success) {
+        alert("Request Rejected");
+        handleCloseModal();
+        fetchTimeOffRequests();
+      }
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      alert(error.response?.data?.message || "Failed to reject request");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Format date to DD/MM/YYYY
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // Filter requests based on search query
+  const filteredRequests = timeOffRequests.filter(request =>
+    request.employee_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    request.leave_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    request.status?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -164,7 +288,9 @@ export default function TimeOff() {
             <h3 className="text-sm font-medium text-gray-600 mb-3">
               Available paid time off
             </h3>
-            <p className="text-4xl font-bold text-gray-900">24 <span className="text-2xl font-semibold">Days</span></p>
+            <p className="text-4xl font-bold text-gray-900">
+              {leaveBalance.paid_leave_balance} <span className="text-2xl font-semibold">Days</span>
+            </p>
           </div>
 
           {/* Sick Time Off Card */}
@@ -172,7 +298,9 @@ export default function TimeOff() {
             <h3 className="text-sm font-medium text-gray-600 mb-3">
               Available sick time off
             </h3>
-            <p className="text-4xl font-bold text-gray-900">07 <span className="text-2xl font-semibold">Days</span></p>
+            <p className="text-4xl font-bold text-gray-900">
+              {leaveBalance.sick_leave_balance} <span className="text-2xl font-semibold">Days</span>
+            </p>
           </div>
         </div>
 
@@ -202,38 +330,52 @@ export default function TimeOff() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {timeOffRequests.map((request) => (
-                <tr key={request.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">
-                    {request.employeeName}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">
-                    {request.startDate}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">
-                    {request.endDate}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-sm text-blue-600 font-medium">
-                      {request.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">
-                    {request.status}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center gap-3">
-                      <button
-                        onClick={() => handleViewDetails(request)}
-                        className="text-sm font-medium hover:underline"
-                        style={{ color: "#A24689" }}
-                      >
-                        View details
-                      </button>
-                    </div>
+              {filteredRequests.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                    No time off requests found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredRequests.map((request) => (
+                  <tr key={request.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      {request.employee_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      {formatDate(request.from_date)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      {formatDate(request.to_date)}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-sm text-blue-600 font-medium">
+                        {request.leave_type} Time Off
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-center">
+                      <span className={`capitalize px-3 py-1 rounded-full text-xs font-medium ${
+                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        request.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {request.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => handleViewDetails(request)}
+                          className="text-sm font-medium hover:underline"
+                          style={{ color: "#A24689" }}
+                        >
+                          View details
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -292,35 +434,53 @@ export default function TimeOff() {
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Start Date</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.startDate}
+                    {formatDate(selectedRequest.from_date)}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">End Date</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.endDate}
+                    {formatDate(selectedRequest.to_date)}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Time off Type</p>
                   <p className="text-base font-medium text-blue-600">
-                    {selectedRequest.type}
+                    {selectedRequest.leave_type} Time Off
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-500">Duration Type</p>
+                  <p className="text-base font-medium text-gray-900">
+                    {selectedRequest.duration_type}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Status</p>
-                  <p className="text-base font-medium text-gray-900 capitalize">
+                  <p className={`text-base font-medium capitalize ${
+                    selectedRequest.status === 'approved' ? 'text-green-600' :
+                    selectedRequest.status === 'rejected' ? 'text-red-600' :
+                    'text-yellow-600'
+                  }`}>
                     {selectedRequest.status}
                   </p>
                 </div>
 
+                <div className="flex justify-between items-start">
+                  <p className="text-sm text-gray-500">Reason</p>
+                  <p className="text-base font-medium text-gray-900 text-right max-w-[250px]">
+                    {selectedRequest.reason}
+                  </p>
+                </div>
+
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-gray-500">Description</p>
+                  <p className="text-sm text-gray-500">Contact Number</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.description}
+                    {selectedRequest.contact_number}
                   </p>
                 </div>
 
@@ -330,13 +490,13 @@ export default function TimeOff() {
                     <div>
                       <p className="text-xs text-gray-400">Before</p>
                       <p className="text-base font-semibold text-gray-900">
-                        {selectedRequest.balanceBefore}
+                        {selectedRequest.balance_before}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">After</p>
                       <p className="text-base font-semibold text-gray-900">
-                        {selectedRequest.balanceAfter}
+                        {selectedRequest.balance_after}
                       </p>
                     </div>
                   </div>
@@ -352,55 +512,101 @@ export default function TimeOff() {
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Team Members on Leave</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.teamMembersOnLeave}
+                    {selectedRequest.team_members_on_leave || 0}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Workload Risk</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.workloadRisk}
+                    {selectedRequest.workload_risk || 'Low'}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Productivity Impact</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.productivityImpact}
+                    {selectedRequest.productivity_impact || 'N/A'}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Payroll Impact</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.payrollImpact}
+                    {selectedRequest.payroll_impact || 'N/A'}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">Critical Role Flag</p>
                   <p className="text-base font-medium text-gray-900">
-                    {selectedRequest.criticalRoleFlag}
+                    {selectedRequest.critical_role_flag || 'No'}
                   </p>
                 </div>
+
+                {selectedRequest.approved_by_name && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-gray-500">Approved By</p>
+                      <p className="text-base font-medium text-green-600">
+                        {selectedRequest.approved_by_name}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-sm text-gray-500">Approved At</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(selectedRequest.approved_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedRequest.rejected_by_name && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-gray-500">Rejected By</p>
+                      <p className="text-base font-medium text-red-600">
+                        {selectedRequest.rejected_by_name}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-sm text-gray-500">Rejected At</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(selectedRequest.rejected_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Modal Footer */}
             <div className="flex items-center justify-end gap-4 px-8 py-6 border-t border-gray-200">
-              <button
-                onClick={handleReject}
-                className="px-6 py-2.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors font-medium"
-              >
-                Reject
-              </button>
-              <button
-                onClick={handleApprove}
-                className="px-6 py-2.5 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-                style={{ backgroundColor: "#A24689" }}
-              >
-                Approve
-              </button>
+              {selectedRequest.status === 'pending' && (
+                <>
+                  <button
+                    onClick={handleReject}
+                    className="px-6 py-2.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors font-medium"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={handleApprove}
+                    className="px-6 py-2.5 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                    style={{ backgroundColor: "#A24689" }}
+                  >
+                    Approve
+                  </button>
+                </>
+              )}
+              {selectedRequest.status !== 'pending' && (
+                <button
+                  onClick={handleCloseModal}
+                  className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -498,6 +704,12 @@ export default function TimeOff() {
                   </div>
                 </div>
 
+                {/* AI Smart Scheduling Assistant */}
+                <SmartSchedulingAssistant 
+                  formData={formData}
+                  onApplySuggestion={handleApplySuggestion}
+                />
+
                 {/* Duration Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -516,18 +728,18 @@ export default function TimeOff() {
                   </select>
                 </div>
 
-                {/* Reason for Leave */}
+                {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reason for Leave <span className="text-red-500">*</span>
+                    Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    name="reason"
-                    value={formData.reason}
+                    name="description"
+                    value={formData.description}
                     onChange={handleFormChange}
                     required
                     rows="4"
-                    placeholder="Please provide the reason for your leave request..."
+                    placeholder="Please provide a description for your leave request..."
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#A24689] focus:border-transparent outline-none transition-all resize-none"
                   />
                 </div>
@@ -550,20 +762,27 @@ export default function TimeOff() {
                   <p className="text-xs text-gray-500 mt-1">Format: 10 digits</p>
                 </div>
 
-                {/* Attach Document (Optional) */}
+                {/* Attach Document */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Attach Document{" "}
-                    <span className="text-gray-500 text-xs">(Optional)</span>
+                    {formData.leaveType === 'Sick' ? (
+                      <span className="text-red-500">*</span>
+                    ) : (
+                      <span className="text-gray-500 text-xs">(Optional)</span>
+                    )}
                   </label>
                   <input
                     type="file"
                     onChange={handleFileChange}
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    required={formData.leaveType === 'Sick'}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#A24689] focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#A24689] file:text-white hover:file:bg-[#8a3a72] file:cursor-pointer"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Medical proof, etc. (PDF, JPG, PNG, DOC - Max 5MB)
+                    {formData.leaveType === 'Sick' 
+                      ? '⚠️ Medical certificate required for sick leave (PDF, JPG, PNG, DOC - Max 5MB)'
+                      : 'Medical proof, etc. (PDF, JPG, PNG, DOC - Max 5MB)'}
                   </p>
                 </div>
               </div>

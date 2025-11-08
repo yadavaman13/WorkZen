@@ -161,3 +161,8 @@ NOTES.md
 TODO.private.md
 credentials.txt
 passwords.txt
+
+# Markdown files (except README.md)
+*.md
+!README.md
+!**/README.md
