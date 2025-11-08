@@ -5,6 +5,7 @@ import EmployeeDashboard from './pages/DashboardEmployee'
 import HRDashboard from './pages/DashboardHR'
 import PayrollDashboard from './pages/DashboardPayroll'
 import AdminDashboard from './pages/DashboardAdmin'
+import LandingPage from './pages/LandingPage'
 import { AuthProvider, useAuth } from './context/AuthProvider'
 import './App.css'
 
@@ -20,7 +21,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
