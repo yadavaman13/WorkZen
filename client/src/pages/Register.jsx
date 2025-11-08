@@ -79,7 +79,13 @@ export default function Register(){
     }
     
     try{
-      await register({ companyName, name, email, phone, password })
+      const response = await register({ companyName, name, email, phone, password })
+      // After successful registration, redirect to OTP verification
+      // The register function now returns a response without auto-login
+      if (response?.email) {
+        alert('✅ Registration successful! Please check your email for the verification code.');
+        navigate('/verify-otp', { state: { email: response.email } });
+      }
     }catch(error){
       setServerError(error.response?.data?.msg || 'Registration failed')
     }

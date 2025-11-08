@@ -32,12 +32,9 @@ export function AuthProvider({ children }) {
 
   const register = async (payload) => {
     const { data } = await api.post('/api/auth/register', payload)
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify(data.user))
-    setToken(data.token)
-    setUser(data.user)
-    navigate(data.redirect)
-    return data
+    // No longer auto-login after registration - OTP verification required first
+    // Return the email so Register.jsx can pass it to VerifyOtp page
+    return { email: payload.email, msg: data.msg }
   }
 
   const logout = () => {
