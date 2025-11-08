@@ -1,2 +1,2 @@
-# oneFlow
-OneFlow -Plan to Bill in One Place
+# WorkZen
+Smart Human Resource Management System
