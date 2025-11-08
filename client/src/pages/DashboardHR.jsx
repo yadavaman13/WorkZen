@@ -1,0 +1,39 @@
+import { useEffect, useState } from 'react'
+import api from '../api/axios'
+import { useAuth } from '../context/AuthProvider'
+
+export default function HRDashboard(){
+  const { user, logout } = useAuth()
+  const [completion, setCompletion] = useState(0)
+
+  useEffect(()=>{
+    api.get('/api/user/profile-completion').then(r=>setCompletion(r.data.completion)).catch(()=>{})
+  },[])
+
+  const requestEscalation = async ()=>{
+    const role = prompt('Which role would you like to request? e.g. payroll')
+    if(!role) return
+    const reason = prompt('Reason for escalation')
+    await api.post('/api/roles/escalate', { requested_role: role, reason }).then(()=>alert('Requested'))
+  }
+
+  return (
+    <div className="min-h-screen p-6">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold" style={{color:'#A24689'}}>HR Dashboard</h1>
+        <p className="mt-2">Welcome, {user?.name} ({user?.role})</p>
+        <div className="mt-4">
+          <div className="w-full bg-gray-200 rounded h-4">
+            <div className="h-4 rounded" style={{width: `${completion}%`, backgroundColor: '#A24689'}} />
+          </div>
+          <p className="text-sm mt-2">Profile completion: {completion}%</p>
+        </div>
+
+        <div className="mt-6 space-x-2">
+          <button onClick={requestEscalation} className="px-4 py-2 rounded brand-btn">Request Role Escalation</button>
+          <button onClick={logout} className="px-4 py-2 rounded border">Logout</button>
+        </div>
+      </div>
+    </div>
+  )
+}
