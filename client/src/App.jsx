@@ -5,6 +5,7 @@ import VerifyOtp from './pages/VerifyOtp'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
+import TimeOff from './pages/TimeOff'
 import EmployeeDashboard from './pages/DashboardEmployee'
 import HRDashboard from './pages/DashboardHR'
 import PayrollDashboard from './pages/DashboardPayroll'
@@ -44,12 +45,13 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* General dashboard route - redirects based on role */}
           <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard/time-off" element={<Protected roles={["employee","hr","payroll","admin"]}><TimeOff /></Protected>} /> */}
+          <Route path="/dashboard/time-off" element={<TimeOff />} />{/*testingpurpose*/}
 
           <Route path="/dashboard/employee" element={<Protected roles={["employee","hr","payroll","admin"]}><EmployeeDashboard /></Protected>} />
           <Route path="/dashboard/hr" element={<Protected roles={["hr","admin"]}><HRDashboard /></Protected>} />
