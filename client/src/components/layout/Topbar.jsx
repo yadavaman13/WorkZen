@@ -1,5 +1,17 @@
 // src/components/layout/Topbar.jsx
+import { useAuth } from '../../context/AuthProvider';
+
 export default function Topbar() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    // Use the logout function from AuthContext which:
+    // - Clears localStorage (token & user)
+    // - Updates context state
+    // - Redirects to login page
+    logout();
+  };
+
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
       <div className="h-16 px-6 flex items-center justify-between">
@@ -32,16 +44,38 @@ export default function Topbar() {
           <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
             <div className="text-right leading-tight hidden sm:block">
               <div className="text-sm font-medium text-gray-900">
-                Riya Kapoor
+                {user?.name || 'User'}
               </div>
-              <div className="text-xs text-gray-500">HR Officer</div>
+              <div className="text-xs text-gray-500 capitalize">{user?.role || 'Employee'}</div>
             </div>
-            <img
-              alt="avatar"
-              className="h-9 w-9 rounded-full border-2 border-gray-200 object-cover"
-              src="https://i.pravatar.cc/80?img=5"
-            />
+            <div className="h-9 w-9 rounded-full border-2 border-gray-200 bg-purple-100 flex items-center justify-center">
+              <span className="text-sm font-semibold text-purple-700">
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+            </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Logout"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span className="hidden sm:inline">Logout</span>
+          </button>
         </div>
       </div>
     </header>

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import EmployeeDashboard from "./pages/DashboardEmployee";
 import HRDashboard from "./pages/DashboardHR";
@@ -8,9 +10,9 @@ import PayrollDashboard from "./pages/DashboardPayroll";
 import AdminDashboard from "./pages/DashboardAdmin";
 import LandingPage from "./pages/LandingPage";
 import Attendance from "./pages/Attendance";
+import Employees from "./pages/Employees";
 import { AuthProvider, useAuth } from "./context/AuthProvider";
 import "./App.css";
-import Employees from "./pages/Employees";
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -46,9 +48,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* General dashboard route - redirects based on role */}
-          <Route path="/dashboard" element={<Employees />} />
+          <Route path="/dashboard" element={<DashboardRedirect />} />
 
           <Route
             path="/dashboard/employee"
@@ -83,7 +87,15 @@ function App() {
             }
           />
 
-          {/* Attendance Route */}
+          {/* Additional Routes */}
+          <Route
+            path="/employees"
+            element={
+              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+                <Employees />
+              </Protected>
+            }
+          />
           <Route
             path="/attendance"
             element={

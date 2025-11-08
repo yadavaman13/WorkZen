@@ -83,6 +83,18 @@ async function init() {
     });
   }
 
+  const hasPasswordResets = await knexInstance.schema.hasTable('password_resets');
+  if (!hasPasswordResets) {
+    await knexInstance.schema.createTable('password_resets', (t) => {
+      t.increments('id').primary();
+      t.string('email', 255).notNullable();
+      t.string('token', 255).notNullable();
+      t.timestamp('expires_at').notNullable();
+      t.boolean('used').defaultTo(false);
+      t.timestamp('created_at').defaultTo(knexInstance.fn.now());
+    });
+  }
+
   return;
 }
 

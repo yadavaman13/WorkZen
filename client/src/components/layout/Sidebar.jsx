@@ -10,7 +10,7 @@ export default function Sidebar() {
       {/* Logo Section */}
       <div className="px-6 pt-5 pb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#A24689' }}>
             <span className="text-white font-bold text-base">W</span>
           </div>
           <div>
@@ -31,9 +31,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
@@ -56,9 +59,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
@@ -81,9 +87,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
@@ -106,9 +115,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
@@ -131,9 +143,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
@@ -163,9 +178,12 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${navItem} ${
               isActive
-                ? "bg-gray-200 text-gray-900 border-l-4 border-gray-900 pl-[20px]"
-                : "text-gray-700 hover:bg-gray-100 border-l-4 border-transparent"
+                ? "text-gray-900 border-l-4 pl-[20px]"
+                : "text-gray-700 hover:bg-purple-50 border-l-4 border-transparent"
             }`
+          }
+          style={({ isActive }) =>
+            isActive ? { backgroundColor: '#F3E8F0', borderLeftColor: '#A24689' } : {}
           }
         >
           <svg
