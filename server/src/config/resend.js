@@ -1,26 +1,66 @@
 const { Resend } = require('resend');
+const { sendEmailViaGmail } = require('./gmail');
 require('dotenv').config();
 
-// Initialize Resend client
+// Initialize Resend client with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Check if Gmail SMTP should be used
+const useGmailSMTP = process.env.USE_GMAIL_SMTP === 'true';
+
+console.log(`📧 Email Service: ${useGmailSMTP ? 'Gmail SMTP' : 'Resend'} ${useGmailSMTP ? '(Works for ALL emails!)' : ''}`);
+
 /**
- * Send password reset email via Resend
+ * Send email using configured service (Gmail or Resend)
+ * @param {string} toEmail - Recipient email address
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML email body
+ * @returns {Promise<object>} Email service response
+ */
+async function sendEmail(toEmail, subject, htmlContent) {
+  if (useGmailSMTP) {
+    // Use Gmail SMTP (works for all emails)
+    return await sendEmailViaGmail(toEmail, subject, htmlContent);
+  } else {
+    // Use Resend (requires verified domain for all emails)
+    const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+    
+    try {
+      const { data, error } = await resend.emails.send({
+        from: fromEmail,
+        to: [toEmail],
+        subject: subject,
+        html: htmlContent
+      });
+      
+      if (error) {
+        console.error('❌ Resend API Error:', error);
+        throw new Error(error.message || 'Failed to send email');
+      }
+      
+      console.log('✅ Resend email sent successfully:', data.id);
+      return data;
+    } catch (error) {
+      console.error('❌ Email Send Error:', error.message);
+      throw error;
+    }
+  }
+}
+
+/**
+ * Send password reset email via Resend (Official Documentation Format)
  * @param {string} toEmail - Recipient email address
  * @param {string} resetLink - Password reset link with token
- * @returns {Promise<object>} Resend API response
+ * @returns {Promise<object>} Resend API response with email ID
  * 
- * IMPORTANT: When using onboarding@resend.dev (testing domain):
- * - You can ONLY send to the email address you registered with Resend
- * - To send to any email, you must:
- *   1. Verify a custom domain at https://resend.com/domains
- *   2. Update FROM_EMAIL to use your domain (e.g., noreply@yourdomain.com)
+ * Usage follows official Resend docs:
+ * - Uses onboarding@resend.dev for testing (can send to registered email only)
+ * - For production: Verify custom domain at https://resend.com/domains
  */
 async function sendPasswordResetEmail(toEmail, resetLink) {
-  // Use Resend's testing domain - onboarding@resend.dev
-  // For production, verify your own domain and update this
   const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
   
+  // HTML email template
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -107,36 +147,19 @@ async function sendPasswordResetEmail(toEmail, resetLink) {
     </html>
   `;
 
-  try {
-    // Send email using Resend API (official docs format)
-    const { data, error } = await resend.emails.send({
-      from: 'WorkZen <onboarding@resend.dev>', // Format: "Name <email@domain.com>"
-      to: [toEmail], // Array of recipient emails
-      subject: '🔐 Reset Your WorkZen Password',
-      html: htmlContent,
-    });
-
-    // Resend API returns { data, error } - check for errors first
-    if (error) {
-      console.error('❌ Resend API error:', error);
-      
-      // Provide helpful guidance for common errors
-      if (error.statusCode === 403 && error.message.includes('testing emails')) {
-        throw new Error(
-          `Resend Testing Limitation: Using onboarding@resend.dev, you can only send to your registered email. ` +
-          `To send to any email address, verify a custom domain at https://resend.com/domains`
-        );
-      }
-      
-      throw new Error(error.message || 'Failed to send email via Resend');
-    }
-
-    console.log(`✅ Password reset email sent to ${toEmail} | Email ID: ${data.id}`);
-    return data;
-  } catch (error) {
-    console.error('❌ Error sending password reset email:', error.message);
-    throw error;
-  }
+  return await sendEmail(toEmail, '🔐 Reset Your WorkZen Password', htmlContent);
 }
 
-module.exports = { resend, sendPasswordResetEmail };
+/**
+ * Send OTP verification email (uses configured service)
+ * @param {string} toEmail - Recipient email address
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML email body
+ * @returns {Promise<object>} Email service response
+ */
+async function sendOtpEmail(toEmail, subject, htmlContent) {
+  return await sendEmail(toEmail, subject, htmlContent);
+}
+
+module.exports = { resend, sendPasswordResetEmail, sendOtpEmail, sendEmail };
+
