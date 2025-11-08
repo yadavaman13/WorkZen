@@ -6,6 +6,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import TimeOff from './pages/TimeOff'
+import Reports from './pages/Reports'
 import EmployeeDashboard from './pages/DashboardEmployee'
 import HRDashboard from './pages/DashboardHR'
 import PayrollDashboard from './pages/DashboardPayroll'
@@ -23,9 +24,9 @@ function Protected({ children, roles }) {
 
 function DashboardRedirect() {
   const { user } = useAuth();
-  
+
   if (!user) return <Navigate to="/login" replace />;
-  
+
   // Redirect based on user role
   const roleRoutes = {
     admin: '/dashboard',
@@ -33,13 +34,13 @@ function DashboardRedirect() {
     payroll: '/dashboard',
     employee: '/dashboard'
   };
-  
+
   return <Navigate to={roleRoutes[user.role] || '/dashboard/employee'} replace />;
 }
 
 function App() {
   return (
-<BrowserRouter>
+    <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -52,10 +53,11 @@ function App() {
           {/* General dashboard route - redirects based on role */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/timeoff" element={<TimeOff />} />
+          <Route path="/dashboard/reports" element={<Reports />} />
 
-          <Route path="/dashboard/employee" element={<Protected roles={["employee","hr","payroll","admin"]}><EmployeeDashboard /></Protected>} />
-          <Route path="/dashboard/hr" element={<Protected roles={["hr","admin"]}><HRDashboard /></Protected>} />
-          <Route path="/dashboard/payroll" element={<Protected roles={["payroll","admin"]}><PayrollDashboard /></Protected>} />
+          <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
+          <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
+          <Route path="/dashboard/payroll" element={<Protected roles={["payroll", "admin"]}><PayrollDashboard /></Protected>} />
           <Route path="/dashboard/admin" element={<Protected roles={["admin"]}><AdminDashboard /></Protected>} />
         </Routes>
       </AuthProvider>

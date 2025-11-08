@@ -137,7 +137,7 @@ export default function Sidebar() {
           Payroll
         </NavLink>
         <NavLink
-          to="/reports"
+          to="/dashboard/reports"
           className={({ isActive }) =>
             `${navItem} ${
               isActive
