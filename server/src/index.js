@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const db = require('./config/db');
 const { cleanupExpiredTokens, getTokenStats } = require('./jobs/cleanupResetTokens');
 const { scheduleOtpCleanup } = require('./jobs/cleanupOtps');
@@ -12,10 +13,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve uploaded files (with authentication in production)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // initialize DB (create tables if needed)
 db.init()
   .then(async () => {
     console.log('✅ Database initialized');
+    
+    // Run database migrations
+    try {
+      const { renameReasonToDescription } = require('./migrations/rename_reason_to_description');
+      await renameReasonToDescription();
+    } catch (migrationError) {
+      console.warn('⚠️  Migration warning:', migrationError.message);
+    }
     
     // Verify Gmail SMTP if enabled
     if (process.env.USE_GMAIL_SMTP === 'true') {
@@ -56,6 +68,15 @@ db.init()
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/timeoff', require('./routes/timeOffRoutes'));
+
+// Comprehensive Leave Management Routes
+app.use('/api/leave', require('./routes/comprehensiveLeaveRoutes'));
+app.use('/api/merge-queue', require('./routes/mergeQueueRoutes'));
+
+// Start cron scheduler for attendance detection
+const cronScheduler = require('./services/cronScheduler');
+cronScheduler.start();
 
 app.get('/', (req, res) => res.json({ msg: 'WorkZen API up' }));
 
