@@ -1,0 +1,29 @@
+# Environment variables - CONFIDENTIAL
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Database utility scripts (contain sensitive operations)
+create-db.js
+remove-department.js
+clear-users.js
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Debug files
+debug.log
