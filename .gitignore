@@ -1,4 +1,20 @@
-# Environment variables - CONFIDENTIAL
+# ========================================
+# WORKZEN HRMS - GITIGNORE
+# ========================================
+# This file protects sensitive information including:
+# - Database credentials (PostgreSQL)
+# - JWT secrets
+# - Gmail SMTP credentials (EMAIL_USER, EMAIL_PASS)
+# - Resend API keys
+# - Email passwords and app-specific passwords
+# - API tokens and authentication keys
+# ========================================
+
+# ========================================
+# CONFIDENTIAL FILES - NEVER COMMIT
+# ========================================
+
+# Environment variables containing API keys, passwords, secrets
 .env
 .env.local
 .env.development
@@ -8,6 +24,35 @@
 *.env
 server/.env
 client/.env
+**/.env
+**/.env.*
+
+# Configuration files with sensitive data
+config.local.js
+secrets.json
+credentials.json
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.ppk
+
+# API keys and tokens
+.apikeys
+api-keys.txt
+tokens.txt
+secrets.txt
+
+# Database credentials
+database.json
+db-config.json
+connection-string.txt
 
 # Dependencies
 node_modules/
@@ -39,6 +84,16 @@ build
 *.db
 *.sql
 *.dump
+*.backup
+*.bak
+
+# Backup files with potential sensitive data
+backup/
+backups/
+*.backup
+*.bak
+*.old
+*.orig
 
 # Database migration scripts (optional - comment if needed)
 server/create-db.js
