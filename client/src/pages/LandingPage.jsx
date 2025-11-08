@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
+import { useEffect } from 'react';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Redirect to dashboard if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleGetStarted = () => {
     navigate('/login');
