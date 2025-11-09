@@ -75,10 +75,8 @@ async function seedPayrollData() {
         const [run] = await db('payroll_runs')
           .insert({
             payroll_period_id: period.id,
-            status: 'finalized',
-            created_by: users[0].id,
-            month: parseInt(period.start_date.split('-')[1]),
-            year: parseInt(period.start_date.split('-')[0])
+            status: 'completed',
+            created_by: users[0].id
           })
           .returning('*');
 
@@ -144,15 +142,11 @@ async function seedPayrollData() {
           employee_id: user.id,
           period_start: period.start_date,
           period_end: period.end_date,
-          month: run.month,
-          year: run.year,
           components: JSON.stringify(components),
           deductions: JSON.stringify(deductions),
           gross: gross,
           net: net,
           status: 'validated',
-          worked_days: presentDays,
-          paid_leaves: paidLeaveDays,
           attendance_data: JSON.stringify({
             totalDays: totalDays,
             presentDays: presentDays,
@@ -177,8 +171,7 @@ async function seedPayrollData() {
         .where({ id: run.id })
         .update({
           total_gross: totalGross,
-          total_net: totalNet,
-          employee_count: payslips.length
+          total_net: totalNet
         });
 
       console.log(`Updated totals for ${period.period_name}: Gross=${totalGross}, Net=${totalNet}`);
