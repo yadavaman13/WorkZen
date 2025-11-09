@@ -30,8 +30,8 @@ export default function Topbar() {
 
   const handleMyProfile = () => {
     setShowProfileMenu(false);
-    // Navigate to profile page (you can implement this later)
-    navigate("/dashboard");
+    // Navigate to profile page
+    navigate("/dashboard/profile");
   };
 
   return (

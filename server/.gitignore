@@ -45,5 +45,9 @@ tmp/
 temp/
 *.tmp
 
+# Uploaded files (contains user documents)
+uploads/
+uploads/**/*
+
 # Debug files
 debug.log

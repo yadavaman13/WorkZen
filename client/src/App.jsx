@@ -16,6 +16,10 @@ import { AuthProvider, useAuth } from "./context/AuthProvider";
 import "./App.css";
 import VerifyOtp from "./pages/VerifyOtp";
 import TimeOff from "./pages/TimeOff";
+import Reports from './pages/Reports'
+import Profile from './pages/Profile'
+import Payroll from './pages/Payroll'
+import Settings from './pages/Settings'
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -56,7 +60,15 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/timeoff" element={<TimeOff />} />
+          <Route path="/dashboard/reports" element={<Reports />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
+          <Route path="/dashboard/payroll" element={<Payroll />} />
+          <Route path="/dashboard/settings" element={<Settings />} />
 
+          {/* <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
+          <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
+          <Route path="/dashboard/payroll" element={<Protected roles={["payroll", "admin"]}><PayrollDashboard /></Protected>} />
+          <Route path="/dashboard/admin" element={<Protected roles={["admin"]}><AdminDashboard /></Protected>} /> */}
           {/* Dashboard Routes with Layout */}
           <Route
             path="/dashboard"
@@ -92,9 +104,9 @@ function App() {
           />
 
           <Route
-            path="/dashboard/time-off"
+            path="/dashboard/timeoff"
             element={
-              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+              // <Protected roles={["employee", "hr", "payroll", "admin"]}>
                 <DashboardLayout>
                   <div>
                     <h1 className="text-2xl font-bold mb-4">Time Off</h1>
@@ -103,7 +115,7 @@ function App() {
                     </p>
                   </div>
                 </DashboardLayout>
-              </Protected>
+              // </Protected>
             }
           />
 

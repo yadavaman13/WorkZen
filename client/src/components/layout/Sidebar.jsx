@@ -123,7 +123,7 @@ export default function Sidebar() {
           </svg>
         </NavLink>
         <NavLink
-          to="/dashboard/time-off"
+          to="/dashboard/timeoff"
           className={({ isActive }) =>
             `${navItem} pl-6 ${
               isActive
@@ -260,12 +260,6 @@ export default function Sidebar() {
             />
           </svg>
         </NavLink>
-
-        <div className="pt-5 pb-2">
-          <div className="px-6 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-            Settings
-          </div>
-        </div>
 
         <NavLink
           to="/dashboard/settings"
