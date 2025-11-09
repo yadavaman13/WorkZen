@@ -79,6 +79,9 @@ app.use('/api/timeoff', require('./routes/timeOffRoutes'));
 app.use('/api/leave', require('./routes/comprehensiveLeaveRoutes'));
 app.use('/api/merge-queue', require('./routes/mergeQueueRoutes'));
 
+// Payroll Management Routes
+app.use('/api/payroll', require('./routes/payroll'));
+
 // Start cron scheduler for attendance detection
 const cronScheduler = require('./services/cronScheduler');
 cronScheduler.start();
