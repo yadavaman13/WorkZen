@@ -1,6 +1,5 @@
 // src/pages/Employees.jsx
 import { useState, useEffect, useRef } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import { employees, departments } from "../data/hrms.js";
 
 function EmployeeCard({ employee }) {
@@ -69,7 +68,7 @@ export default function Employees() {
   });
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-start justify-between mb-6">
@@ -232,6 +231,6 @@ export default function Employees() {
           No employees found matching "{searchQuery}"
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

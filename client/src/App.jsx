@@ -25,7 +25,19 @@ function Protected({ children, roles }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (roles && !roles.includes(user.role))
-    return <div className="p-6">Forbidden</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+          <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600 mb-4">You don't have permission to access this page.</p>
+          <p className="text-sm text-gray-500">Your role: <span className="font-semibold">{user.role || 'Not assigned'}</span></p>
+          <p className="text-sm text-gray-500">Required roles: <span className="font-semibold">{roles.join(', ')}</span></p>
+        </div>
+      </div>
+    );
   return children;
 }
 
@@ -58,24 +70,14 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/timeoff" element={<TimeOff />} />
-          <Route path="/dashboard/reports" element={<Reports />} />
-          <Route path="/dashboard/profile" element={<Profile />} />
-          <Route path="/dashboard/payroll" element={<Payroll />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
 
-          {/* <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
-          <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
-          <Route path="/dashboard/payroll" element={<Protected roles={["payroll", "admin"]}><PayrollDashboard /></Protected>} />
-          <Route path="/dashboard/admin" element={<Protected roles={["admin"]}><AdminDashboard /></Protected>} /> */}
           {/* Dashboard Routes with Layout */}
           <Route
             path="/dashboard"
             element={
               <Protected>
                 <DashboardLayout>
-                  <Navigate to="/dashboard/employees" replace />
+                  <Navigate to="/dashboard/attendance" replace />
                 </DashboardLayout>
               </Protected>
             }
@@ -84,7 +86,7 @@ function App() {
           <Route
             path="/dashboard/employees"
             element={
-              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+              <Protected roles={["hr", "admin", "employee"]}>
                 <DashboardLayout>
                   <Employees />
                 </DashboardLayout>
@@ -106,16 +108,11 @@ function App() {
           <Route
             path="/dashboard/timeoff"
             element={
-              // <Protected roles={["employee", "hr", "payroll", "admin"]}>
+              <Protected roles={["employee", "hr", "payroll", "admin"]}>
                 <DashboardLayout>
-                  <div>
-                    <h1 className="text-2xl font-bold mb-4">Time Off</h1>
-                    <p className="text-gray-600">
-                      Time Off management coming soon...
-                    </p>
-                  </div>
+                  <TimeOff />
                 </DashboardLayout>
-              // </Protected>
+              </Protected>
             }
           />
 
@@ -124,12 +121,7 @@ function App() {
             element={
               <Protected roles={["payroll", "admin"]}>
                 <DashboardLayout>
-                  <div>
-                    <h1 className="text-2xl font-bold mb-4">Payroll</h1>
-                    <p className="text-gray-600">
-                      Payroll management coming soon...
-                    </p>
-                  </div>
+                  <Payroll />
                 </DashboardLayout>
               </Protected>
             }
@@ -138,14 +130,20 @@ function App() {
           <Route
             path="/dashboard/reports"
             element={
-              <Protected roles={["hr", "payroll", "admin"]}>
+              <Protected roles={["payroll", "admin"]}>
                 <DashboardLayout>
-                  <div>
-                    <h1 className="text-2xl font-bold mb-4">Reports</h1>
-                    <p className="text-gray-600">
-                      Reports and analytics coming soon...
-                    </p>
-                  </div>
+                  <Reports />
+                </DashboardLayout>
+              </Protected>
+            }
+          />
+
+          <Route
+            path="/dashboard/profile"
+            element={
+              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+                <DashboardLayout>
+                  <Profile />
                 </DashboardLayout>
               </Protected>
             }
@@ -154,13 +152,9 @@ function App() {
           <Route
             path="/dashboard/settings"
             element={
-              <Protected roles={["employee", "hr", "payroll", "admin"]}>
+              <Protected roles={["admin"]}>
                 <DashboardLayout>
-                  <div>
-                    <p className="text-gray-600">
-                      Settings page coming soon...
-                    </p>
-                  </div>
+                  <Settings />
                 </DashboardLayout>
               </Protected>
             }

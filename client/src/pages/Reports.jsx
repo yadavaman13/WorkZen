@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 
 export default function Reports() {
   const [selectedEmployee, setSelectedEmployee] = useState("");
@@ -34,7 +33,7 @@ export default function Reports() {
   const isFormValid = selectedEmployee && selectedYear;
 
   return (
-    <DashboardLayout>
+    <>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -139,6 +138,6 @@ export default function Reports() {
           </p>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

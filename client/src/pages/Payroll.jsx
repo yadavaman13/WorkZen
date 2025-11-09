@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import api from "../api/axios";
 import Toast from "../components/Toast";
 
@@ -320,7 +319,7 @@ export default function Payroll() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -1013,6 +1012,6 @@ export default function Payroll() {
           onClose={() => setToast(null)}
         />
       )}
-    </DashboardLayout>
+    </>
   );
 }

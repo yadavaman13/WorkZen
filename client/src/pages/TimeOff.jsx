@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import SmartSchedulingAssistant from "../components/SmartSchedulingAssistant.jsx";
 import axios from "../api/axios";
 
@@ -224,7 +223,7 @@ export default function TimeOff() {
   );
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-4">
@@ -808,7 +807,7 @@ export default function TimeOff() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }
 
