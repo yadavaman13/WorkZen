@@ -67,8 +67,10 @@ db.init()
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/timeoff', require('./routes/timeOffRoutes'));
+app.use('/api/onboarding', require('./routes/onboardingRoutes'));
 
 // Comprehensive Leave Management Routes
 app.use('/api/leave', require('./routes/comprehensiveLeaveRoutes'));

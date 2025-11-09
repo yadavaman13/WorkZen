@@ -18,6 +18,9 @@ import VerifyOtp from "./pages/VerifyOtp";
 import TimeOff from "./pages/TimeOff";
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
+import Onboarding from './pages/Onboarding'
+import OnboardingWizard from './pages/onboarding/OnboardingWizard'
+import HROnboardingReview from './pages/HROnboardingReview'
 
 function Protected({ children, roles }) {
   const { user } = useAuth();
@@ -56,10 +59,12 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/onboarding" element={<Protected><OnboardingWizard /></Protected>} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/timeoff" element={<TimeOff />} />
           <Route path="/dashboard/reports" element={<Reports />} />
           <Route path="/dashboard/profile" element={<Profile />} />
+          <Route path="/dashboard/onboarding" element={<Onboarding />} />
 
           {/* <Route path="/dashboard/employee" element={<Protected roles={["employee", "hr", "payroll", "admin"]}><EmployeeDashboard /></Protected>} />
           <Route path="/dashboard/hr" element={<Protected roles={["hr", "admin"]}><HRDashboard /></Protected>} />
@@ -179,6 +184,16 @@ function App() {
               <Protected roles={["hr", "admin"]}>
                 <DashboardLayout>
                   <HRDashboard />
+                </DashboardLayout>
+              </Protected>
+            }
+          />
+          <Route
+            path="/dashboard/hr/onboarding-review"
+            element={
+              <Protected roles={["hr", "admin"]}>
+                <DashboardLayout>
+                  <HROnboardingReview />
                 </DashboardLayout>
               </Protected>
             }
