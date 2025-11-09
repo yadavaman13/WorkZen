@@ -1,359 +1,654 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import { useAuth } from "../context/AuthProvider.jsx";
 
 export default function Profile() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(
+    user?.role === "admin" || user?.role === "payroll" ? "salary-info" : "resume"
+  );
   const [profileData, setProfileData] = useState({
-    employee_id: "",
-    company_name: "",
     name: "",
+    loginId: "",
     email: "",
-    phone: "",
-    profile_completion: 0,
-    created_at: "",
-    bank_name: "",
-    account_number: "",
-    ifsc_code: "",
-    account_holder_name: "",
+    mobile: "",
+    company: "",
+    department: "",
+    manager: "",
+    location: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
+
+  const [aboutData, setAboutData] = useState({
+    about: "",
+    whatILove: "",
+    interests: "",
+  });
+
+  const [skills, setSkills] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [salaryData, setSalaryData] = useState({
+    monthWage: 50000,
+    yearlyWage: 600000,
+    workingDaysInWeek: 5,
+    breakTime: 1,
+  });
+
+  const [privateInfo, setPrivateInfo] = useState({
+    dateOfBirth: "",
+    residingAddress: "",
+    nationality: "",
+    personalEmail: "",
+    gender: "",
+    maritalStatus: "",
+    dateOfJoining: "",
+  });
+
+  const [salaryInfo, setSalaryInfo] = useState({
+    accountNumber: "",
+    bankName: "",
+    ifscCode: "",
+    panNo: "",
+    uanNo: "",
+    empCode: "",
+  });
 
   useEffect(() => {
-    // TODO: Fetch user profile data from API
-    // For now, using mock data
     const mockData = {
-      employee_id: "EMP001",
-      company_name: "WorkZen Technologies",
       name: user?.name || "John Doe",
-      email: user?.email || "john.doe@example.com",
-      phone: "1234567890",
-      profile_completion: 85,
-      created_at: "2024-01-15T10:30:00Z",
-      bank_name: "State Bank of India",
-      account_number: "1234567890123456",
-      ifsc_code: "SBIN0001234",
-      account_holder_name: "John Doe",
+      loginId: "john.doe",
+      email: user?.email || "john.doe@workzen.com",
+      mobile: "+1234567890",
+      company: "WorkZen Technologies",
+      department: "Engineering",
+      manager: "Jane Smith",
+      location: "New York, USA",
     };
     setProfileData(mockData);
+
+    setAboutData({
+      about: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      whatILove: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      interests: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+    });
+
+    setSkills(["JavaScript", "React", "Node.js", "Python"]);
+    setCertifications(["AWS Certified Developer", "Google Cloud Professional"]);
+
+    setPrivateInfo({
+      dateOfBirth: "1990-01-15",
+      residingAddress: "123 Main Street, Apartment 4B, New York, NY 10001",
+      nationality: "American",
+      personalEmail: "john.doe.personal@gmail.com",
+      gender: "Male",
+      maritalStatus: "Single",
+      dateOfJoining: "2023-01-15",
+    });
+
+    setSalaryInfo({
+      accountNumber: "1234567890123456",
+      bankName: "Chase Bank",
+      ifscCode: "CHAS0001234",
+      panNo: "ABCDE1234F",
+      uanNo: "123456789012",
+      empCode: "WZ2023001",
+    });
   }, [user]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    
-    // Validation for phone number - only digits, max 10
-    if (name === "phone") {
-      const digitsOnly = value.replace(/\D/g, "");
-      if (digitsOnly.length <= 10) {
-        setProfileData((prev) => ({
-          ...prev,
-          [name]: digitsOnly,
-        }));
-      }
-      return;
-    }
-    
-    // Validation for account number - only positive integers
-    if (name === "account_number") {
-      const digitsOnly = value.replace(/\D/g, "");
-      setProfileData((prev) => ({
-        ...prev,
-        [name]: digitsOnly,
-      }));
-      return;
-    }
-    
-    // Default handling for other fields
-    setProfileData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleAboutEdit = (field) => {
+    console.log("Edit", field);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: Implement API call to update profile
-    console.log("Updated profile data:", profileData);
-    alert("Profile updated successfully!");
-    setIsEditing(false);
+  const handleAddSkill = () => {
+    const skill = prompt("Enter new skill:");
+    if (skill) {
+      setSkills([...skills, skill]);
+    }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const handleAddCertification = () => {
+    const cert = prompt("Enter new certification:");
+    if (cert) {
+      setCertifications([...certifications, cert]);
+    }
   };
+
+  const handleResetPassword = () => {
+    navigate("/reset-password");
+  };
+
+  const tabs = [
+    { id: "resume", label: "Resume" },
+    { id: "private-info", label: "Private Info" },
+    ...(user?.role === "admin" || user?.role === "payroll" ? [{ id: "salary-info", label: "Salary Info" }] : []),
+    { id: "security", label: "Security" },
+  ];
 
   return (
     <DashboardLayout>
       <div className="w-full">
-        {/* Header */}
-        <div className="mb-8 text-left">
-          <h1 className="text-3xl font-bold text-gray-900 ">My Profile</h1>
-          <p className="text-sm text-gray-500 mt-2">
-            Manage your personal information and account details
-          </p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">My Profile</h1>
         </div>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
-          {/* Profile Header */}
-          <div className="border-b border-gray-200 px-8 py-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Personal Information
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Profile completion: {profileData.profile_completion}%
-              </p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-start gap-6">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full bg-pink-200 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-4">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-1">{profileData.name}</h2>
+                    <div className="h-px bg-gray-300 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Login ID</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Email</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Mobile</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-600">Company</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Department</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Manager</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Location</label>
+                    <div className="h-px bg-gray-300 mt-1 w-48"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2.5 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-                style={{ backgroundColor: "#A24689" }}
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  Cancel
+          </div>
+
+          <div className="border-b border-gray-200">
+            <div className="flex">
+              {tabs.map((tab) => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-8 py-4 font-medium text-sm border-b-2 transition-colors ${activeTab === tab.id ? "border-gray-900 text-gray-900 bg-gray-50" : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`}>
+                  {tab.label}
                 </button>
-                <button
-                  onClick={handleSubmit}
-                  className="px-6 py-2.5 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-                  style={{ backgroundColor: "#A24689" }}
-                >
-                  Save Changes
-                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6">
+            {activeTab === "resume" && (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">About:</h3>
+                      <button onClick={() => handleAboutEdit("about")} className="text-gray-500 hover:text-gray-700">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">{aboutData.about}</p>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">What I love about my job</h3>
+                      <button onClick={() => handleAboutEdit("whatILove")} className="text-gray-500 hover:text-gray-700">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">{aboutData.whatILove}</p>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">My interests and hobbies</h3>
+                      <button onClick={() => handleAboutEdit("interests")} className="text-gray-500 hover:text-gray-700">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">{aboutData.interests}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-4">Skills</h3>
+                    <div className="space-y-2 mb-4">
+                      {skills.map((skill, index) => (
+                        <div key={index} className="px-3 py-2 bg-gray-50 rounded-md text-sm text-gray-700">
+                          {skill}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={handleAddSkill} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                      + Add Skills
+                    </button>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-4">Certification</h3>
+                    <div className="space-y-2 mb-4">
+                      {certifications.map((cert, index) => (
+                        <div key={index} className="px-3 py-2 bg-gray-50 rounded-md text-sm text-gray-700">
+                          {cert}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={handleAddCertification} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                      + Add Skills
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "salary-info" && (
+              <div className="space-y-6">
+                {/* Wage Information */}
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Month Wage</label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <input type="text" value={salaryData.monthWage} readOnly className="px-3 py-2 border-b border-gray-300 focus:outline-none text-gray-900 w-32" />
+                      <span className="text-gray-600">/ Month</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">No. of working days in a week</label>
+                    <div className="mt-2">
+                      <input type="text" value={salaryData.workingDaysInWeek} readOnly className="px-3 py-2 border-b border-gray-300 focus:outline-none text-gray-900 w-32" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Yearly Wage</label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <input type="text" value={salaryData.yearlyWage} readOnly className="px-3 py-2 border-b border-gray-300 focus:outline-none text-gray-900 w-32" />
+                      <span className="text-gray-600">/ Yearly</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Break Time</label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <input type="text" value={salaryData.breakTime} readOnly className="px-3 py-2 border-b border-gray-300 focus:outline-none text-gray-900 w-32" />
+                      <span className="text-gray-600">Hrs</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Salary Components */}
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Salary Components</h3>
+                  
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Left Column - Earnings */}
+                    <div className="space-y-4">
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Basic Salary</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">25000.00 ₹/Month</span>
+                            <span className="text-gray-600">50.00 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">Define Basic salary (if no company cost model, it based on monthly wages)</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">House Rent Allowance</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">12500.00 ₹/Month</span>
+                            <span className="text-gray-600">25.00 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">HRA provided to employees: 50% of the basic salary</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Standard Allowance</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">9167.00 ₹/Month</span>
+                            <span className="text-gray-600">18.33 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">A Standard Allowance to a professional, fixed amount provided to employee</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Performance Bonus</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">2083.30 ₹/Month</span>
+                            <span className="text-gray-600">4.16 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">Variable amount and Bonus one-off salary. Also defined but calculated as a % of the basic salary</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Leave Travel Allowance</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">2083.30 ₹/Month</span>
+                            <span className="text-gray-600">4.16 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">LTA is paid by the company to employee to cover their travel expenses and related cost during vacation or leaves</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Fixed Allowance</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">2416.00 ₹/Month</span>
+                            <span className="text-gray-600">11.67 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">Fixed Allowance paid as % of wage to determined after calculation of salary components</p>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Deductions */}
+                    <div className="space-y-4">
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Provident Fund (PF) Contribution</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">3000.00 ₹/Month</span>
+                            <span className="text-gray-600">12.00 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">PF is calculated based on the basic salary</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Employee</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">3000.00 ₹/Month</span>
+                            <span className="text-gray-600">12.00 %</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">PF is calculated based on the basic salary</p>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Tax Deductions</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">2000.00 ₹/Month</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-b border-gray-200 pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-gray-700">Professional Tax</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-900">200.00 ₹/Month</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">A regional tax deducted from the Gross salary</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "private-info" && (
+              <div className="space-y-6">
+                {/* Left Column - Personal Information */}
+                <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.dateOfBirth}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bank Details
+                    </label>
+                    <div className="text-sm font-semibold text-gray-900 pb-2 border-b border-gray-300">
+                      Bank Details
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Residing Address
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.residingAddress}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Account Number
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.accountNumber}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nationality
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.nationality}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bank Name
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.bankName}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Personal Email
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.personalEmail}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.ifscCode}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gender
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.gender}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      PAN No
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.panNo}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Marital Status
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.maritalStatus}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      UAN NO
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.uanNo}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date of Joining
+                    </label>
+                    <input
+                      type="text"
+                      value={privateInfo.dateOfJoining}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Emp Code
+                    </label>
+                    <input
+                      type="text"
+                      value={salaryInfo.empCode}
+                      readOnly
+                      className="w-full pb-2 border-b border-gray-300 focus:outline-none focus:border-[#A24689] text-gray-900 bg-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "security" && (
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-white rounded-lg border border-gray-200 p-8">
+                  <div className="text-center">
+                    <div className="mb-6">
+                      <svg
+                        className="mx-auto h-16 w-16 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      Password Security
+                    </h3>
+                    <p className="text-gray-600 mb-8">
+                      Keep your account secure by managing your password settings
+                    </p>
+                    
+                    <button
+                      onClick={handleResetPassword}
+                      className="px-8 py-3 text-white rounded-lg hover:opacity-90 transition-opacity font-medium text-lg"
+                      style={{ backgroundColor: "#A24689" }}
+                    >
+                      Reset Password
+                    </button>
+                  </div>
+
+                  {/* Security Tips */}
+                  <div className="mt-10 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Password Security Tips
+                    </h4>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      <li>• Use a combination of letters, numbers, and special characters</li>
+                      <li>• Avoid using personal information in your password</li>
+                      <li>• Change your password regularly</li>
+                      <li>• Don't share your password with anyone</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-
-          {/* Profile Form */}
-          <form onSubmit={handleSubmit} className="px-8 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Employee ID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Employee ID
-                </label>
-                <input
-                  type="text"
-                  name="employee_id"
-                  value={profileData.employee_id}
-                  disabled
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
-                />
-              </div>
-
-              {/* Company Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  name="company_name"
-                  value={profileData.company_name}
-                  disabled
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
-                />
-              </div>
-
-              {/* Full Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={profileData.name}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                      : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                  }`}
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={profileData.email}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  required
-                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                      : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                  }`}
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={profileData.phone}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  placeholder="1234567890"
-                  maxLength={10}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                      : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                  }`}
-                />
-                <p className="text-xs text-gray-500 mt-1">10 digits only</p>
-              </div>
-
-              {/* Account Created Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Account Created
-                </label>
-                <input
-                  type="text"
-                  value={formatDate(profileData.created_at)}
-                  disabled
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Bank Details Section */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Bank Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Bank Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bank Name
-                  </label>
-                  <input
-                    type="text"
-                    name="bank_name"
-                    value={profileData.bank_name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                      isEditing
-                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                    }`}
-                  />
-                </div>
-
-                {/* Account Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Account Number
-                  </label>
-                  <input
-                    type="text"
-                    name="account_number"
-                    value={profileData.account_number}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder="Enter digits only"
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                      isEditing
-                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                    }`}
-                  />
-                </div>
-
-                {/* IFSC Code */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    IFSC Code
-                  </label>
-                  <input
-                    type="text"
-                    name="ifsc_code"
-                    value={profileData.ifsc_code}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    maxLength={11}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                      isEditing
-                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                    }`}
-                  />
-                </div>
-
-                {/* Account Holder Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Account Holder Name
-                  </label>
-                  <input
-                    type="text"
-                    name="account_holder_name"
-                    value={profileData.account_holder_name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg outline-none transition-all ${
-                      isEditing
-                        ? "focus:ring-2 focus:ring-[#A24689] focus:border-transparent bg-white"
-                        : "bg-gray-50 text-gray-700 cursor-not-allowed"
-                    }`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Profile Completion Progress Bar */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Profile Completion
-                </label>
-                <span className="text-sm font-semibold" style={{ color: "#A24689" }}>
-                  {profileData.profile_completion}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className="h-3 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${profileData.profile_completion}%`,
-                    backgroundColor: "#A24689",
-                  }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Complete your profile as soon as possible.
-              </p>
-            </div>
-          </form>
         </div>
       </div>
     </DashboardLayout>
