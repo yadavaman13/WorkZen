@@ -29,6 +29,10 @@ db.init()
       // Create user_profiles table
       const { createUserProfilesTable } = require('./migrations/createUserProfilesTable');
       await createUserProfilesTable();
+      
+      // Create attendance tables
+      const { createAttendanceTables } = require('./migrations/createAttendanceTables');
+      await createAttendanceTables();
     } catch (migrationError) {
       console.warn('⚠️  Migration warning:', migrationError.message);
     }
