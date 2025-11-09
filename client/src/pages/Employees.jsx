@@ -1,14 +1,14 @@
 // src/pages/Employees.jsx
 import { useState, useEffect, useRef } from "react";
-import { employees, departments } from "../data/hrms.js";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
 
 function EmployeeCard({ employee, onClick }) {
-  // Determine status indicator
-  // You can customize this logic based on your employee data structure
+  // Determine status indicator based on employee status
   const getStatusIndicator = () => {
-    const status = employee.attendance_status || employee.status || "present";
+    const status = employee.status?.toLowerCase() || "active";
 
-    if (status === "on_leave" || status === "leave") {
+    if (status === "on leave" || status === "leave") {
       // Airplane icon for on leave
       return (
         <div
@@ -24,20 +24,20 @@ function EmployeeCard({ employee, onClick }) {
           </svg>
         </div>
       );
-    } else if (status === "absent") {
-      // Yellow dot for absent
+    } else if (status === "inactive" || status === "absent") {
+      // Red dot for inactive/absent
       return (
         <div
-          className="absolute top-3 right-3 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white shadow-sm"
-          title="Absent"
+          className="absolute top-3 right-3 w-3 h-3 bg-red-400 rounded-full border-2 border-white shadow-sm"
+          title="Inactive"
         ></div>
       );
     } else {
-      // Green dot for present (default)
+      // Green dot for active (default)
       return (
         <div
           className="absolute top-3 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"
-          title="Present"
+          title="Active"
         ></div>
       );
     }
@@ -72,9 +72,17 @@ function EmployeeCard({ employee, onClick }) {
         {/* Employee Info */}
         <div className="text-center w-full">
           <h3 className="text-base font-semibold text-gray-900 mb-1">
-            {employee.first_name} {employee.last_name}
+            {employee.name}
           </h3>
-          <p className="text-xs text-gray-500">{employee.email}</p>
+          <p className="text-xs text-gray-500 mb-2">{employee.email}</p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="inline-block px-2 py-1 text-xs font-medium rounded-md bg-purple-100 text-purple-700">
+              {employee.employee_id}
+            </span>
+            <span className="inline-block px-2 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-700 capitalize">
+              {employee.role}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -235,12 +243,46 @@ function DetailItem({ label, value }) {
 }
 
 export default function Employees() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [attendanceFilter, setAttendanceFilter] = useState("all");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
   const filterRef = useRef(null);
+
+  // Fetch employees from API
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/users/employees', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.success) {
+        setEmployees(response.data.employees);
+        console.log('✅ Fetched employees:', response.data.employees.length);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching employees:', error);
+      console.error('Error details:', error.response?.data);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -254,23 +296,17 @@ export default function Employees() {
   }, []);
 
   const filteredEmployees = employees.filter((emp) => {
-    const matchesSearch = `${emp.first_name} ${emp.last_name}`
+    const matchesSearch = emp.name
       .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      .includes(searchQuery.toLowerCase()) || 
+      emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.employee_id.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesDepartment =
-      departmentFilter === "all" ||
-      emp.department_id === parseInt(departmentFilter);
+    const empStatus = emp.status?.toLowerCase() || "active";
+    const matchesStatus =
+      statusFilter === "all" || empStatus === statusFilter;
 
-    const empStatus = emp.attendance_status || emp.status || "present";
-    const matchesAttendance =
-      attendanceFilter === "all" ||
-      (attendanceFilter === "present" && empStatus === "present") ||
-      (attendanceFilter === "on_leave" &&
-        (empStatus === "on_leave" || empStatus === "leave")) ||
-      (attendanceFilter === "absent" && empStatus === "absent");
-
-    return matchesSearch && matchesDepartment && matchesAttendance;
+    return matchesSearch && matchesStatus;
   });
 
   return (
@@ -309,7 +345,7 @@ export default function Employees() {
                 <button
                   onClick={() => setShowFilter(!showFilter)}
                   className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-gray-100 transition-colors ${
-                    departmentFilter !== "all"
+                    statusFilter !== "all"
                       ? "text-gray-900 bg-gray-100"
                       : "text-gray-400"
                   }`}
@@ -335,50 +371,50 @@ export default function Employees() {
                 <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10">
                   <div className="p-4">
                     <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                      Department
+                      Status
                     </div>
                     <div className="space-y-1.5">
                       <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
                         <input
                           type="radio"
-                          name="department"
+                          name="status"
                           value="all"
-                          checked={departmentFilter === "all"}
-                          onChange={(e) => setDepartmentFilter(e.target.value)}
+                          checked={statusFilter === "all"}
+                          onChange={(e) => setStatusFilter(e.target.value)}
                           className="w-4 h-4 text-gray-900 focus:ring-gray-900"
                         />
                         <span className="text-sm text-gray-700 font-medium">
-                          All Departments
+                          All Status
                         </span>
                       </label>
-                      {departments.map((dept) => (
-                        <label
-                          key={dept.department_id}
-                          className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
-                        >
-                          <input
-                            type="radio"
-                            name="department"
-                            value={dept.department_id.toString()}
-                            checked={
-                              departmentFilter === dept.department_id.toString()
-                            }
-                            onChange={(e) =>
-                              setDepartmentFilter(e.target.value)
-                            }
-                            className="w-4 h-4 text-gray-900 focus:ring-gray-900"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {dept.department_name}
-                          </span>
-                        </label>
-                      ))}
+                      <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="status"
+                          value="active"
+                          checked={statusFilter === "active"}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                          className="w-4 h-4 text-gray-900 focus:ring-gray-900"
+                        />
+                        <span className="text-sm text-gray-700">Active</span>
+                      </label>
+                      <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                        <input
+                          type="radio"
+                          name="status"
+                          value="inactive"
+                          checked={statusFilter === "inactive"}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                          className="w-4 h-4 text-gray-900 focus:ring-gray-900"
+                        />
+                        <span className="text-sm text-gray-700">Inactive</span>
+                      </label>
                     </div>
                   </div>
-                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex gap-2 -mx-0 -mb-0">
+                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex gap-2 mx-0 mb-0">
                     <button
                       onClick={() => {
-                        setDepartmentFilter("all");
+                        setStatusFilter("all");
                       }}
                       className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-md border border-gray-300 transition-colors bg-white"
                     >
@@ -396,7 +432,10 @@ export default function Employees() {
             </div>
 
             {/* Add Employee Button */}
-            <button className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 brand-btn">
+            <button 
+              onClick={() => navigate('/dashboard/onboarding')}
+              className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 brand-btn"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -475,21 +514,88 @@ export default function Employees() {
         </div>
       </div>
 
-      {/* Employee Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
-        {filteredEmployees.map((employee) => (
-          <EmployeeCard
-            key={employee.employee_id}
-            employee={employee}
-            onClick={() => setSelectedEmployee(employee)}
-          />
-        ))}
-      </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      )}
 
-      {/* Empty state */}
-      {filteredEmployees.length === 0 && (
+      {/* Employee Cards Grid */}
+      {!loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+          {filteredEmployees.map((employee) => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              onClick={() => setSelectedEmployee(employee)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Empty state - No employees at all */}
+      {!loading && filteredEmployees.length === 0 && employees.length === 0 && (
+        <div className="text-center py-12">
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No employees</h3>
+          <p className="mt-1 text-sm text-gray-500">Get started by creating a new employee.</p>
+          <div className="mt-6">
+            <button
+              onClick={() => navigate('/dashboard/onboarding')}
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800"
+            >
+              <svg
+                className="-ml-1 mr-2 h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Employee
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state - No search results */}
+      {!loading && filteredEmployees.length === 0 && employees.length > 0 && (
         <div className="text-center py-12 text-gray-500">
-          No employees found matching "{searchQuery}"
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No results found</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            No employees found matching your search criteria. Try adjusting your search or filter.
+          </p>
         </div>
       )}
 

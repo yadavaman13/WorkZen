@@ -16,7 +16,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/request-reset', { email });
+      const response = await axios.post('/auth/request-reset', { email });
       setMessage(response.data.msg);
       setEmail('');
     } catch (err) {

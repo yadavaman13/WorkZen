@@ -5,17 +5,26 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  // Clean up old mock data on first load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token === "mock-jwt-token-for-development") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.reload();
+    }
+  }, []);
+
   const [user, setUser] = useState(() => {
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      return storedUser || null;
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
     } catch {
       return null;
     }
   });
   const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem("token");
-    return storedToken || null;
+    return localStorage.getItem("token") || null;
   });
   const navigate = useNavigate();
 

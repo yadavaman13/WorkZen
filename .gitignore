@@ -48,6 +48,31 @@ id_rsa.pub
 .apikeys
 api-keys.txt
 tokens.txt
+
+# ========================================
+# DOCUMENTATION FILES (AI-GENERATED)
+# ========================================
+
+# Implementation and status reports
+*_IMPLEMENTATION.md
+*_COMPLETE.md
+*_SUMMARY.md
+*_STATUS.md
+*_REPORT.md
+*_DOCS.md
+*_README.md
+*_FIX.md
+*_UPDATES.md
+*_CHANGES.md
+*_TESTING.md
+*_INTEGRATION.md
+*_LINK_FIX.md
+*_CALCULATIONS.md
+*_FEATURE.md
+*_ASSISTANT.md
+*_SETUP.md
+COMPLETION_*.txt
+COMPLETION_*.md
 secrets.txt
 
 # Database credentials

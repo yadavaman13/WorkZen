@@ -18,6 +18,9 @@ import VerifyOtp from "./pages/VerifyOtp";
 import TimeOff from "./pages/TimeOff";
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
+import Onboarding from './pages/Onboarding'
+import OnboardingWizard from './pages/onboarding/OnboardingWizard'
+import HROnboardingReview from './pages/HROnboardingReview'
 import Payroll from './pages/Payroll'
 import Settings from './pages/Settings'
 
@@ -70,6 +73,7 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/onboarding" element={<Protected><OnboardingWizard /></Protected>} />
 
           {/* Dashboard Routes with Layout */}
           <Route
@@ -177,6 +181,16 @@ function App() {
               <Protected roles={["hr", "admin"]}>
                 <DashboardLayout>
                   <HRDashboard />
+                </DashboardLayout>
+              </Protected>
+            }
+          />
+          <Route
+            path="/dashboard/hr/onboarding-review"
+            element={
+              <Protected roles={["hr", "admin"]}>
+                <DashboardLayout>
+                  <HROnboardingReview />
                 </DashboardLayout>
               </Protected>
             }

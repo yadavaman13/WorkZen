@@ -29,6 +29,10 @@ db.init()
       // Create user_profiles table
       const { createUserProfilesTable } = require('./migrations/createUserProfilesTable');
       await createUserProfilesTable();
+      
+      // Create attendance tables
+      const { createAttendanceTables } = require('./migrations/createAttendanceTables');
+      await createAttendanceTables();
     } catch (migrationError) {
       console.warn('⚠️  Migration warning:', migrationError.message);
     }
@@ -71,9 +75,11 @@ db.init()
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/profile', require('./routes/profileRoutes'));
 app.use('/api/timeoff', require('./routes/timeOffRoutes'));
+app.use('/api/onboarding', require('./routes/onboardingRoutes'));
 
 // Comprehensive Leave Management Routes
 app.use('/api/leave', require('./routes/comprehensiveLeaveRoutes'));

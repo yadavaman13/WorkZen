@@ -1,379 +1,299 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
-/**
- * Get attendance records with filters
- */
-const getAttendanceRecords = async (req, res) => {
-  try {
-    const { date, startDate, endDate, department, status, employeeId } = req.query;
+// Helper to calculate hours
+function calculateHours(checkIn, checkOut) {
+  if (!checkIn || !checkOut) return 0;
+  const start = new Date(`2000-01-01 ${checkIn}`);
+  const end = new Date(`2000-01-01 ${checkOut}`);
+  const hours = (end - start) / (1000 * 60 * 60);
+  return Math.max(0, parseFloat(hours.toFixed(2)));
+}
 
-    let query = db('attendance_records')
-      .select(
-        'attendance_records.*',
-        'users.name as employee_name',
-        'users.employee_id as employee_code',
-        'users.email',
-        'departments.name as department_name'
-      )
-      .leftJoin('users', 'attendance_records.employee_id', 'users.id')
-      .leftJoin('departments', 'users.department_id', 'departments.id');
-
-    // Apply filters
-    if (date) {
-      query = query.where('attendance_records.date', date);
-    }
-
-    if (startDate && endDate) {
-      query = query.whereBetween('attendance_records.date', [startDate, endDate]);
-    }
-
-    if (department && department !== 'all') {
-      query = query.where('departments.name', department);
-    }
-
-    if (status && status !== 'all') {
-      query = query.where('attendance_records.status', status);
-    }
-
-    if (employeeId) {
-      query = query.where('attendance_records.employee_id', employeeId);
-    }
-
-    const records = await query.orderBy('attendance_records.date', 'desc');
-
-    // Calculate statistics
-    const stats = {
-      total: records.length,
-      present: records.filter(r => r.status === 'Present').length,
-      absent: records.filter(r => r.status === 'Absent').length,
-      halfDay: records.filter(r => r.status === 'Half Day').length,
-      late: records.filter(r => {
-        if (!r.check_in_time) return false;
-        const checkIn = new Date(`2000-01-01 ${r.check_in_time}`);
-        const standardTime = new Date(`2000-01-01 09:30:00`);
-        return checkIn > standardTime;
-      }).length,
-    };
-
-    res.status(200).json({
-      success: true,
-      data: {
-        records,
-        stats
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching attendance records:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch attendance records',
-      error: error.message
-    });
-  }
-};
-
-/**
- * Get attendance summary for dashboard
- */
-const getAttendanceSummary = async (req, res) => {
-  try {
-    const { date = new Date().toISOString().split('T')[0] } = req.query;
-
-    // Get today's attendance
-    const todayRecords = await db('attendance_records')
-      .select(
-        'attendance_records.*',
-        'users.name as employee_name',
-        'users.employee_id as employee_code'
-      )
-      .leftJoin('users', 'attendance_records.employee_id', 'users.id')
-      .where('attendance_records.date', date);
-
-    // Get total active employees
-    const totalEmployees = await db('users')
-      .where('status', 'active')
-      .whereNotIn('role', ['admin'])
-      .count('* as count')
-      .first();
-
-    const stats = {
-      date,
-      totalEmployees: parseInt(totalEmployees.count),
-      present: todayRecords.filter(r => r.status === 'Present').length,
-      absent: totalEmployees.count - todayRecords.length,
-      halfDay: todayRecords.filter(r => r.status === 'Half Day').length,
-      late: todayRecords.filter(r => {
-        if (!r.check_in_time) return false;
-        const checkIn = new Date(`2000-01-01 ${r.check_in_time}`);
-        const standardTime = new Date(`2000-01-01 09:30:00`);
-        return checkIn > standardTime;
-      }).length,
-      attendanceRate: totalEmployees.count > 0 
-        ? ((todayRecords.length / totalEmployees.count) * 100).toFixed(1)
-        : 0
-    };
-
-    res.status(200).json({
-      success: true,
-      data: stats
-    });
-  } catch (error) {
-    console.error('Error fetching attendance summary:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch attendance summary',
-      error: error.message
-    });
-  }
-};
-
-/**
- * Check in attendance
- */
-const checkIn = async (req, res) => {
+async function checkIn(req, res) {
   try {
     const employeeId = req.user.id;
-    const { notes } = req.body;
-    const today = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toTimeString().split(' ')[0];
-
-    // Check if already checked in today
-    const existing = await db('attendance_records')
-      .where({
-        employee_id: employeeId,
-        date: today
-      })
+    const today = new Date().toISOString().split("T")[0];
+    const currentTime = new Date().toTimeString().split(" ")[0];
+    
+    const existing = await db("attendance_records")
+      .where({ employee_id: employeeId, attendance_date: today })
       .first();
-
+    
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: 'Already checked in today'
+        message: "You have already checked in today"
       });
     }
-
-    // Create attendance record
-    const [record] = await db('attendance_records')
+    
+    const [record] = await db("attendance_records")
       .insert({
         employee_id: employeeId,
-        date: today,
+        attendance_date: today,
         check_in_time: currentTime,
-        status: 'Present',
-        notes: notes || null,
-        created_at: new Date(),
-        updated_at: new Date()
+        status: "Present"
       })
-      .returning('*');
-
-    res.status(201).json({
+      .returning("*");
+    
+    return res.json({
       success: true,
-      message: 'Checked in successfully',
+      message: "Checked in successfully",
       data: record
     });
   } catch (error) {
-    console.error('Error checking in:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to check in',
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
-};
+}
 
-/**
- * Check out attendance
- */
-const checkOut = async (req, res) => {
+async function checkOut(req, res) {
   try {
     const employeeId = req.user.id;
-    const today = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toTimeString().split(' ')[0];
-
-    // Find today's record
-    const record = await db('attendance_records')
-      .where({
-        employee_id: employeeId,
-        date: today
-      })
+    const today = new Date().toISOString().split("T")[0];
+    const currentTime = new Date().toTimeString().split(" ")[0];
+    
+    const record = await db("attendance_records")
+      .where({ employee_id: employeeId, attendance_date: today })
       .first();
-
+    
     if (!record) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        message: 'No check-in record found for today'
+        message: "No check-in record found for today"
       });
     }
-
+    
     if (record.check_out_time) {
       return res.status(400).json({
         success: false,
-        message: 'Already checked out today'
+        message: "You have already checked out today"
       });
     }
-
-    // Calculate hours worked
-    const checkIn = new Date(`2000-01-01 ${record.check_in_time}`);
-    const checkOut = new Date(`2000-01-01 ${currentTime}`);
-    const hoursWorked = ((checkOut - checkIn) / (1000 * 60 * 60)).toFixed(2);
-
-    // Update record
-    await db('attendance_records')
+    
+    const hoursWorked = calculateHours(record.check_in_time, currentTime);
+    
+    const [updated] = await db("attendance_records")
       .where({ id: record.id })
       .update({
         check_out_time: currentTime,
         hours_worked: hoursWorked,
-        updated_at: new Date()
-      });
-
-    const updated = await db('attendance_records')
-      .where({ id: record.id })
-      .first();
-
-    res.status(200).json({
+        updated_at: db.fn.now()
+      })
+      .returning("*");
+    
+    return res.json({
       success: true,
-      message: 'Checked out successfully',
+      message: `Checked out successfully. You worked ${hoursWorked} hours today.`,
       data: updated
     });
   } catch (error) {
-    console.error('Error checking out:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to check out',
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
-};
+}
 
-/**
- * Get employee's own attendance records
- */
-const getMyAttendance = async (req, res) => {
+async function getMyAttendance(req, res) {
   try {
     const employeeId = req.user.id;
     const { startDate, endDate, limit = 30 } = req.query;
-
-    let query = db('attendance_records')
-      .where('employee_id', employeeId)
-      .orderBy('date', 'desc')
-      .limit(parseInt(limit));
-
-    if (startDate && endDate) {
-      query = query.whereBetween('date', [startDate, endDate]);
-    }
-
-    const records = await query;
-
-    res.status(200).json({
-      success: true,
-      data: records
-    });
+    
+    let query = db("attendance_records")
+      .where({ employee_id: employeeId })
+      .orderBy("attendance_date", "desc");
+    
+    if (startDate) query = query.where("attendance_date", ">=", startDate);
+    if (endDate) query = query.where("attendance_date", "<=", endDate);
+    
+    const records = await query.limit(parseInt(limit));
+    
+    return res.json({ success: true, data: records });
   } catch (error) {
-    console.error('Error fetching my attendance:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch attendance records',
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
-};
+}
 
-/**
- * Mark attendance for employee (Admin/HR only)
- */
-const markAttendance = async (req, res) => {
+async function getAttendanceRecords(req, res) {
   try {
-    const { employeeId, date, status, checkInTime, checkOutTime, notes } = req.body;
-
-    // Check if record exists
-    const existing = await db('attendance_records')
-      .where({ employee_id: employeeId, date })
-      .first();
-
-    let hoursWorked = null;
-    if (checkInTime && checkOutTime) {
-      const checkIn = new Date(`2000-01-01 ${checkInTime}`);
-      const checkOut = new Date(`2000-01-01 ${checkOutTime}`);
-      hoursWorked = ((checkOut - checkIn) / (1000 * 60 * 60)).toFixed(2);
+    const { date, department, status } = req.query;
+    const targetDate = date || new Date().toISOString().split("T")[0];
+    
+    let query = db("attendance_records as ar")
+      .leftJoin("users as u", "ar.employee_id", "u.id")
+      .select(
+        "ar.*",
+        "u.name as employee_name",
+        "u.email",
+        "u.employee_id as employee_code",
+        "u.department as department_name",
+        "u.job_title"
+      )
+      .where("ar.attendance_date", targetDate);
+    
+    if (department && department !== "all") {
+      query = query.where("u.department", department);
     }
-
-    const recordData = {
-      employee_id: employeeId,
-      date,
-      status,
-      check_in_time: checkInTime || null,
-      check_out_time: checkOutTime || null,
-      hours_worked: hoursWorked,
-      notes: notes || null,
-      updated_at: new Date()
+    
+    if (status && status !== "all") {
+      query = query.where("ar.status", status);
+    }
+    
+    const records = await query.orderBy("ar.check_in_time", "asc");
+    
+    const stats = {
+      total: records.length,
+      uniqueEmployees: new Set(records.map(r => r.employee_id)).size,
+      present: records.filter(r => r.status === "Present").length,
+      absent: records.filter(r => r.status === "Absent").length,
+      halfDay: records.filter(r => r.status === "HalfDay").length,
+      late: records.filter(r => r.is_late).length,
+      onTime: records.filter(r => !r.is_late && r.check_in_time).length,
+      attendanceRate: 0
     };
+    
+    const totalEmp = await db("users")
+      .where({ role: "employee", status: "active" })
+      .count("* as count")
+      .first();
+    
+    const total = parseInt(totalEmp?.count || 0);
+    if (total > 0) {
+      stats.attendanceRate = Math.round((stats.present / total) * 100);
+    }
+    
+    return res.json({ success: true, data: { records, stats } });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
 
-    if (existing) {
-      // Update existing record
-      await db('attendance_records')
-        .where({ id: existing.id })
-        .update(recordData);
+async function getDepartments(req, res) {
+  try {
+    const deps = await db("users")
+      .distinct("department")
+      .whereNotNull("department")
+      .orderBy("department");
+    
+    const formatted = deps
+      .filter(d => d.department)
+      .map((d, index) => ({
+        id: index + 1,
+        name: d.department
+      }));
+    
+    return res.json({ success: true, data: formatted });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
 
-      const updated = await db('attendance_records')
-        .where({ id: existing.id })
-        .first();
-
-      res.status(200).json({
-        success: true,
-        message: 'Attendance updated successfully',
-        data: updated
-      });
-    } else {
-      // Create new record
-      recordData.created_at = new Date();
-      const [record] = await db('attendance_records')
-        .insert(recordData)
-        .returning('*');
-
-      res.status(201).json({
-        success: true,
-        message: 'Attendance marked successfully',
-        data: record
+async function markAttendance(req, res) {
+  try {
+    const { employeeId, date, checkInTime, checkOutTime, status } = req.body;
+    
+    if (!employeeId || !date) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID and date are required"
       });
     }
-  } catch (error) {
-    console.error('Error marking attendance:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to mark attendance',
-      error: error.message
-    });
-  }
-};
-
-/**
- * Get departments list
- */
-const getDepartments = async (req, res) => {
-  try {
-    const departments = await db('departments')
-      .select('id', 'name')
-      .orderBy('name', 'asc');
-
-    res.status(200).json({
+    
+    const hoursWorked = calculateHours(checkInTime, checkOutTime);
+    
+    const [record] = await db("attendance_records")
+      .insert({
+        employee_id: employeeId,
+        attendance_date: date,
+        check_in_time: checkInTime || null,
+        check_out_time: checkOutTime || null,
+        hours_worked: hoursWorked,
+        status: status || "Present"
+      })
+      .returning("*");
+    
+    return res.json({
       success: true,
-      data: departments
+      message: "Attendance marked successfully",
+      data: record
     });
   } catch (error) {
-    console.error('Error fetching departments:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch departments',
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
-};
+}
+
+async function updateAttendance(req, res) {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    
+    const record = await db("attendance_records").where({ id }).first();
+    
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendance record not found"
+      });
+    }
+    
+    if (updates.check_in_time || updates.check_out_time) {
+      const checkIn = updates.check_in_time || record.check_in_time;
+      const checkOut = updates.check_out_time || record.check_out_time;
+      updates.hours_worked = calculateHours(checkIn, checkOut);
+    }
+    
+    updates.updated_at = db.fn.now();
+    
+    const [updated] = await db("attendance_records")
+      .where({ id })
+      .update(updates)
+      .returning("*");
+    
+    return res.json({
+      success: true,
+      message: "Attendance updated successfully",
+      data: updated
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+async function getAttendanceSummary(req, res) {
+  try {
+    const { employeeId, startDate, endDate } = req.query;
+    const targetId = employeeId || req.user.id;
+    
+    let query = db("attendance_records").where({ employee_id: targetId });
+    
+    if (startDate) query = query.where("attendance_date", ">=", startDate);
+    if (endDate) query = query.where("attendance_date", "<=", endDate);
+    
+    const records = await query;
+    
+    const summary = {
+      totalDays: records.length,
+      present: records.filter(r => r.status === "Present").length,
+      absent: records.filter(r => r.status === "Absent").length,
+      halfDay: records.filter(r => r.status === "HalfDay").length,
+      totalHoursWorked: records.reduce((sum, r) => sum + parseFloat(r.hours_worked || 0), 0)
+    };
+    
+    if (summary.totalDays > 0) {
+      summary.averageHoursPerDay = parseFloat((summary.totalHoursWorked / summary.totalDays).toFixed(2));
+      summary.attendancePercentage = Math.round((summary.present / summary.totalDays) * 100);
+    }
+    
+    return res.json({ success: true, data: summary });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
 
 module.exports = {
-  getAttendanceRecords,
-  getAttendanceSummary,
   checkIn,
   checkOut,
   getMyAttendance,
+  getAttendanceRecords,
+  getDepartments,
   markAttendance,
-  getDepartments
+  updateAttendance,
+  getAttendanceSummary
 };
+

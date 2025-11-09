@@ -40,7 +40,7 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/reset-password', {
+      const response = await axios.post('/auth/reset-password', {
         token,
         email,
         newPassword: password,
@@ -50,9 +50,9 @@ export default function ResetPassword() {
       setPassword('');
       setConfirmPassword('');
       
-      // Redirect to login after 2 seconds
+      // Redirect to onboarding for new employees after 2 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate('/onboarding');
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to reset password');

@@ -1,28 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const attendanceController = require('../controllers/attendanceController');
 const { protect } = require('../middleware/authMiddleware');
+const {
+  checkIn,
+  checkOut,
+  getMyAttendance,
+  getAttendanceRecords,
+  getDepartments,
+  markAttendance,
+  updateAttendance,
+  getAttendanceSummary
+} = require('../controllers/attendanceController');
 
-// Middleware to check if user has admin/HR access
-const authorizeAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'hr') {
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. Admin or HR role required.'
-    });
-  }
-  next();
-};
+// Employee routes (authenticated users)
+router.post('/check-in', protect, checkIn);
+router.post('/check-out', protect, checkOut);
+router.get('/my-attendance', protect, getMyAttendance);
+router.get('/summary', protect, getAttendanceSummary);
 
-// Public routes (require authentication)
-router.get('/my-attendance', protect, attendanceController.getMyAttendance);
-router.post('/check-in', protect, attendanceController.checkIn);
-router.post('/check-out', protect, attendanceController.checkOut);
-router.get('/summary', protect, attendanceController.getAttendanceSummary);
-
-// Admin/HR routes
-router.get('/records', protect, authorizeAdmin, attendanceController.getAttendanceRecords);
-router.post('/mark', protect, authorizeAdmin, attendanceController.markAttendance);
-router.get('/departments', protect, attendanceController.getDepartments);
+// HR/Admin routes (all authenticated users can view, but some operations might need role check)
+router.get('/records', protect, getAttendanceRecords);
+router.get('/departments', protect, getDepartments);
+router.post('/mark', protect, markAttendance); // Manual marking by HR/Admin
+router.put('/:id', protect, updateAttendance); // Update attendance record
 
 module.exports = router;
