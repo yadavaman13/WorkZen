@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import { useAuth } from "../context/AuthProvider.jsx";
 import api from "../api/axios";
 
@@ -160,20 +159,20 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-4 border-[#A24689] border-t-transparent rounded-full animate-spin"></div>
             <div className="text-gray-500">Loading profile...</div>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-red-500 mb-4">{error}</div>
@@ -185,12 +184,12 @@ export default function Profile() {
             </button>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="w-full">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">My Profile</h1>
@@ -715,6 +714,6 @@ export default function Profile() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

@@ -42,8 +42,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
-    // redirect to role dashboard
-    navigate(data.redirect);
+    
+    // Redirect to role dashboard or default to /dashboard
+    const redirectPath = data.redirect || '/dashboard';
+    navigate(redirectPath);
     return data;
   };
 

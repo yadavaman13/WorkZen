@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
-import axios from "axios";
+import axios from "../api/axios";
 
 function EmployeeCard({ employee }) {
   // Function to get status color
@@ -129,7 +129,7 @@ export default function Employees() {
   });
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-start justify-between mb-6">
@@ -364,6 +364,6 @@ export default function Employees() {
           </p>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

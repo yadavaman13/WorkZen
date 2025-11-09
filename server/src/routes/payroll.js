@@ -17,6 +17,9 @@ const authorizePayroll = (req, res, next) => {
 // Dashboard route
 router.get('/dashboard', protect, authorizePayroll, payrollController.getDashboard);
 
+// Periods route
+router.get('/periods', protect, authorizePayroll, payrollController.getPayrollPeriods);
+
 // Payrun routes
 router.post('/payruns', protect, authorizePayroll, payrollController.createPayrun);
 router.get('/payruns/:payrunId', protect, authorizePayroll, payrollController.getPayrunDetails);
