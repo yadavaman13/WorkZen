@@ -82,6 +82,9 @@ app.use('/api/merge-queue', require('./routes/mergeQueueRoutes'));
 // Payroll Management Routes
 app.use('/api/payroll', require('./routes/payroll'));
 
+// Attendance Management Routes
+app.use('/api/attendance', require('./routes/attendance'));
+
 // Start cron scheduler for attendance detection
 const cronScheduler = require('./services/cronScheduler');
 cronScheduler.start();

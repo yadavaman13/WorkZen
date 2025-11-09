@@ -141,21 +141,29 @@ class DashboardService {
     const payruns = await db('payroll_runs')
       .select(
         'payroll_runs.*',
-        'payroll_periods.month',
-        'payroll_periods.year',
-        'payroll_periods.period_start'
+        'payroll_periods.period_name',
+        'payroll_periods.start_date as period_start'
       )
       .leftJoin('payroll_periods', 'payroll_runs.payroll_period_id', 'payroll_periods.id')
       .where('payroll_runs.created_at', '>=', dateFilter)
       .whereIn('payroll_runs.status', ['computed', 'validated', 'completed'])
-      .orderBy('payroll_periods.period_start', 'asc');
+      .orderBy('payroll_periods.start_date', 'asc');
 
     // Format data for chart
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const chartData = payruns.map(payrun => {
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      // Extract month and year from period_name
+      let month = 1, year = new Date().getFullYear();
+      if (payrun.period_name) {
+        const parts = payrun.period_name.split(' ');
+        month = monthNames.indexOf(parts[0]) + 1;
+        year = parseInt(parts[1]) || year;
+      }
+      
       const label = groupBy === 'month' 
-        ? `${monthNames[payrun.month - 1]} ${payrun.year}`
-        : `${payrun.year}`;
+        ? `${monthNamesShort[month - 1]} ${year}`
+        : `${year}`;
 
       return {
         label,
@@ -303,28 +311,25 @@ class DashboardService {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
     // Current month payrun
+    const currentPeriodName = `${monthNames[currentMonth - 1]} ${currentYear}`;
     const currentMonthPayrun = await db('payroll_runs')
       .select('payroll_runs.*')
       .leftJoin('payroll_periods', 'payroll_runs.payroll_period_id', 'payroll_periods.id')
-      .where({
-        'payroll_periods.month': currentMonth,
-        'payroll_periods.year': currentYear
-      })
+      .where('payroll_periods.period_name', currentPeriodName)
       .first();
 
     // Last month payrun
     const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    const lastPeriodName = `${monthNames[lastMonth - 1]} ${lastMonthYear}`;
 
     const lastMonthPayrun = await db('payroll_runs')
       .select('payroll_runs.*')
       .leftJoin('payroll_periods', 'payroll_runs.payroll_period_id', 'payroll_periods.id')
-      .where({
-        'payroll_periods.month': lastMonth,
-        'payroll_periods.year': lastMonthYear
-      })
+      .where('payroll_periods.period_name', lastPeriodName)
       .first();
 
     // Calculate percentage change
@@ -334,11 +339,11 @@ class DashboardService {
       ? ((currentNet - lastNet) / lastNet * 100).toFixed(2)
       : 0;
 
-    // Year to date total
+    // Year to date total - get all payruns for current year
     const ytdPayruns = await db('payroll_runs')
-      .select('payroll_runs.*')
+      .select('payroll_runs.*', 'payroll_periods.period_name')
       .leftJoin('payroll_periods', 'payroll_runs.payroll_period_id', 'payroll_periods.id')
-      .where('payroll_periods.year', currentYear)
+      .where('payroll_periods.period_name', 'like', `% ${currentYear}`)
       .whereIn('payroll_runs.status', ['computed', 'validated', 'completed']);
 
     const ytdTotal = ytdPayruns.reduce((sum, pr) => sum + parseFloat(pr.total_net || 0), 0);
