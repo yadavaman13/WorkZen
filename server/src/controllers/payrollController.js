@@ -301,6 +301,31 @@ const autoComputePayrun = async (req, res) => {
   }
 };
 
+/**
+ * Get all payroll periods
+ */
+const getPayrollPeriods = async (req, res) => {
+  try {
+    const db = require('../config/database');
+    
+    const periods = await db('payroll_periods')
+      .select('id', 'period_name', 'start_date', 'end_date', 'status')
+      .orderBy('start_date', 'desc');
+
+    res.status(200).json({
+      success: true,
+      data: periods
+    });
+  } catch (error) {
+    console.error('Error fetching payroll periods:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payroll periods',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getDashboard,
   createPayrun,
@@ -310,5 +335,6 @@ module.exports = {
   computePayslip,
   validatePayslip,
   cancelPayslip,
-  autoComputePayrun
+  autoComputePayrun,
+  getPayrollPeriods
 };

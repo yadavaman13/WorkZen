@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import ConfirmationModal from "../components/ConfirmationModal.jsx";
 import Toast from "../components/Toast.jsx";
 import api from "../api/axios";
@@ -120,20 +119,20 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-4 border-[#A24689] border-t-transparent rounded-full animate-spin"></div>
             <div className="text-gray-500">Loading users...</div>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-red-500 mb-4">{error}</div>
@@ -145,12 +144,12 @@ export default function Settings() {
             </button>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
@@ -267,6 +266,6 @@ export default function Settings() {
         type={toast.type}
         onClose={hideToast}
       />
-    </DashboardLayout>
+    </>
   );
 }

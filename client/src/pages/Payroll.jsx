@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import api from "../api/axios";
 import Toast from "../components/Toast";
+import CreatePayrunModal from "../components/payroll/CreatePayrunModal";
 
 export default function Payroll() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -19,11 +19,19 @@ export default function Payroll() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
+  // New dynamic states for period selection and payrun creation
+  const [periods, setPeriods] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creatingPayrun, setCreatingPayrun] = useState(false);
+  const [payrunWarnings, setPayrunWarnings] = useState([]);
+
   // Fetch dashboard data
   useEffect(() => {
     if (activeTab === "dashboard") {
       fetchDashboardData();
     }
+    fetchPeriods(); // Fetch periods on mount
   }, [activeTab]);
 
   // Fetch payrun details when switching to payrun tab
@@ -50,6 +58,24 @@ export default function Payroll() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPeriods = async () => {
+    try {
+      const response = await api.get('/payroll/periods');
+      if (response.data.success) {
+        setPeriods(response.data.data);
+        // Auto-select the first open/draft period
+        const openPeriod = response.data.data.find(p => p.status === 'draft' || p.status === 'open');
+        if (openPeriod) setSelectedPeriod(openPeriod.id);
+      }
+    } catch (error) {
+      console.error('Error fetching periods:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to fetch payroll periods'
+      });
     }
   };
 
@@ -285,8 +311,10 @@ export default function Payroll() {
             type: 'success',
             message: 'Payslip cancelled successfully'
           });
-          // Refresh payslip details
-          fetchPayslipDetails(selectedPayslip.id);
+          // Close detail view and refresh
+          setShowPayslipDetail(false);
+          setSelectedPayslip(null);
+          if (selectedPayrun) fetchPayrunDetails(selectedPayrun);
         }
       } catch (error) {
         console.error('Error cancelling payslip:', error);
@@ -297,6 +325,80 @@ export default function Payroll() {
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const handleCreatePayrun = async (forceCreate = false) => {
+    if (!selectedPeriod) {
+      setToast({
+        type: 'error',
+        message: 'Please select a payroll period'
+      });
+      return;
+    }
+
+    try {
+      setCreatingPayrun(true);
+      const response = await api.post('/payroll/payruns', {
+        payroll_period_id: selectedPeriod,
+        force: forceCreate
+      });
+
+      if (response.data.warnings && response.data.warnings.length > 0 && !forceCreate) {
+        // Show warnings in modal
+        setPayrunWarnings(response.data.warnings);
+        return; // Keep modal open to show warnings
+      }
+
+      // Success
+      setToast({
+        type: 'success',
+        message: `Payrun created with ${response.data.data.employees_processed} employees`
+      });
+      setShowCreateModal(false);
+      setPayrunWarnings([]);
+      
+      // Refresh dashboard
+      fetchDashboardData();
+      
+      // Switch to payrun tab and load the new payrun
+      if (response.data.data.payrun_id) {
+        setActiveTab('payrun');
+        fetchPayrunDetails(response.data.data.payrun_id);
+      }
+    } catch (error) {
+      console.error('Error creating payrun:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to create payrun'
+      });
+    } finally {
+      setCreatingPayrun(false);
+    }
+  };
+
+  const handleAutoComputePayrun = async () => {
+    if (!selectedPayrun) return;
+    
+    try {
+      setLoading(true);
+      const response = await api.post(`/payroll/payruns/${selectedPayrun}/compute`);
+      if (response.data.success) {
+        setToast({
+          type: 'success',
+          message: `Computed ${response.data.data.computed_count} payslips successfully`
+        });
+        // Refresh payrun details
+        fetchPayrunDetails(selectedPayrun);
+      }
+    } catch (error) {
+      console.error('Error computing payrun:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to compute payrun'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -320,7 +422,7 @@ export default function Payroll() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -450,9 +552,20 @@ export default function Payroll() {
 
             {/* Payrun Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Payrun
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Payrun
+                </h3>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A24689] text-white rounded-lg hover:bg-[#8B3A74] transition-colors text-sm font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  New
+                </button>
+              </div>
               <div className="space-y-3">
                 {loading && !dashboardData ? (
                   <p className="text-sm text-gray-500">Loading payruns...</p>
@@ -1013,6 +1126,21 @@ export default function Payroll() {
           onClose={() => setToast(null)}
         />
       )}
-    </DashboardLayout>
+
+      {/* Create Payrun Modal */}
+      <CreatePayrunModal
+        show={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setPayrunWarnings([]);
+        }}
+        periods={periods}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={(periodId) => setSelectedPeriod(periodId)}
+        onCreate={handleCreatePayrun}
+        loading={creatingPayrun}
+        warnings={payrunWarnings}
+      />
+    </>
   );
 }

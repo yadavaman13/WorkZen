@@ -155,13 +155,13 @@ export default function Attendance() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      present: "bg-green-100 text-green-800",
-      absent: "bg-red-100 text-red-800",
-      halfday: "bg-yellow-100 text-yellow-800",
-      leave: "bg-blue-100 text-blue-800",
-      holiday: "bg-purple-100 text-purple-800",
+      present: "bg-green-50 text-green-700 border border-green-200",
+      absent: "bg-red-50 text-red-700 border border-red-200",
+      halfday: "bg-gray-50 text-gray-700 border border-gray-200",
+      leave: "bg-[#A24689]/10 text-[#A24689] border border-[#A24689]/20",
+      holiday: "bg-gray-100 text-gray-600 border border-gray-300",
     };
-    return badges[status] || "bg-gray-100 text-gray-800";
+    return badges[status] || "bg-gray-50 text-gray-700 border border-gray-200";
   };
 
   const handleCheckIn = () => {
@@ -213,7 +213,7 @@ export default function Attendance() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 -m-6 p-6">
+    <div className="min-h-screen bg-gray-50 -m-6 p-6">
       {/* Header with Actions */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -222,13 +222,13 @@ export default function Attendance() {
               Attendance Management
             </h1>
             <p className="text-gray-600">
-              Track and manage employee attendance with real-time insights
+              Track and manage employee attendance
             </p>
           </div>
           <div className="flex gap-3">
             <button
               onClick={handleCheckIn}
-              className="px-6 py-3 bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-[#A24689] text-white rounded-lg hover:bg-[#8a3a73] transition-colors duration-200 flex items-center gap-2 font-medium"
             >
               <svg
                 className="w-5 h-5"
@@ -247,7 +247,7 @@ export default function Attendance() {
             </button>
             <button
               onClick={handleExport}
-              className="px-6 py-3 bg-white border-2 border-[#A24689] text-[#A24689] rounded-xl hover:bg-[#A24689] hover:text-white transition-all duration-200 flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center gap-2 font-medium"
             >
               <svg
                 className="w-5 h-5"
@@ -271,11 +271,11 @@ export default function Attendance() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Attendance Rate Card */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-[#A24689] to-[#8a3a73] rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-[#A24689] rounded-lg flex items-center justify-center">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -297,18 +297,18 @@ export default function Attendance() {
           </p>
           <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-[#A24689] to-[#8a3a73] h-2 rounded-full"
+              className="bg-[#A24689] h-2 rounded-full transition-all duration-300"
               style={{ width: `${stats.attendanceRate}%` }}
             ></div>
           </div>
         </div>
 
         {/* Present Today Card */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-[#A24689] rounded-lg flex items-center justify-center">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -326,17 +326,17 @@ export default function Attendance() {
             Present Today
           </p>
           <p className="text-3xl font-bold text-gray-900">{stats.present}</p>
-          <p className="text-sm text-emerald-600 mt-2 font-medium">
+          <p className="text-sm text-gray-500 mt-2 font-medium">
             On time: {stats.onTime}
           </p>
         </div>
 
         {/* Late Arrivals Card */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-[#A24689] rounded-lg flex items-center justify-center">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -354,17 +354,17 @@ export default function Attendance() {
             Late Arrivals
           </p>
           <p className="text-3xl font-bold text-gray-900">{stats.late}</p>
-          <p className="text-sm text-amber-600 mt-2 font-medium">
-            Requires attention
+          <p className="text-sm text-gray-500 mt-2 font-medium">
+            {stats.total > 0 ? ((stats.late / stats.total) * 100).toFixed(1) : 0}% of total
           </p>
         </div>
 
         {/* Absent Card */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-[#A24689] rounded-lg flex items-center justify-center">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -380,22 +380,22 @@ export default function Attendance() {
           </div>
           <p className="text-sm font-medium text-gray-600 mb-1">Absent</p>
           <p className="text-3xl font-bold text-gray-900">{stats.absent}</p>
-          <p className="text-sm text-rose-600 mt-2 font-medium">
+          <p className="text-sm text-gray-500 mt-2 font-medium">
             Half day: {stats.halfDay}
           </p>
         </div>
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {/* Filters and Search Bar */}
-        <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+        <div className="p-6 bg-white border-b border-gray-200">
           <div className="flex flex-wrap items-center gap-4">
             {/* Search */}
             <div className="flex-1 min-w-[250px]">
               <div className="relative">
                 <svg
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A24689]"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -412,7 +412,7 @@ export default function Attendance() {
                   placeholder="Search by name, ID, or email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-3 w-full border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#A24689] focus:ring-2 focus:ring-[#A24689]/20 transition-all duration-200"
+                  className="pl-12 pr-4 py-2.5 w-full border border-gray-300 rounded-lg focus:outline-none focus:border-[#A24689] focus:ring-1 focus:ring-[#A24689] transition-all duration-200"
                 />
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function Attendance() {
             <select
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
-              className="px-5 py-3 border-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#A24689] focus:ring-2 focus:ring-[#A24689]/20 transition-all duration-200 font-medium text-gray-700"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-[#A24689] focus:ring-1 focus:ring-[#A24689] transition-all duration-200 text-gray-700"
             >
               <option value="all">All Departments</option>
               {departments.map((dept) => (
@@ -435,7 +435,7 @@ export default function Attendance() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-5 py-3 border-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#A24689] focus:ring-2 focus:ring-[#A24689]/20 transition-all duration-200 font-medium text-gray-700"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-[#A24689] focus:ring-1 focus:ring-[#A24689] transition-all duration-200 text-gray-700"
             >
               <option value="all">All Status</option>
               <option value="Present">Present</option>
@@ -446,12 +446,12 @@ export default function Attendance() {
             </select>
 
             {/* View Toggle */}
-            <div className="flex border-2 border-gray-200 rounded-xl overflow-hidden bg-white">
+            <div className="flex border border-gray-300 rounded-lg overflow-hidden bg-white">
               <button
                 onClick={() => setSelectedView("daily")}
-                className={`px-5 py-3 text-sm font-medium transition-all duration-200 ${
+                className={`px-5 py-2.5 text-sm font-medium transition-colors duration-200 ${
                   selectedView === "daily"
-                    ? "bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white shadow-md"
+                    ? "bg-[#A24689] text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
@@ -459,9 +459,9 @@ export default function Attendance() {
               </button>
               <button
                 onClick={() => setSelectedView("weekly")}
-                className={`px-5 py-3 text-sm font-medium border-x-2 border-gray-200 transition-all duration-200 ${
+                className={`px-5 py-2.5 text-sm font-medium border-x border-gray-300 transition-colors duration-200 ${
                   selectedView === "weekly"
-                    ? "bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white shadow-md"
+                    ? "bg-[#A24689] text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
@@ -469,9 +469,9 @@ export default function Attendance() {
               </button>
               <button
                 onClick={() => setSelectedView("monthly")}
-                className={`px-5 py-3 text-sm font-medium transition-all duration-200 ${
+                className={`px-5 py-2.5 text-sm font-medium transition-colors duration-200 ${
                   selectedView === "monthly"
-                    ? "bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white shadow-md"
+                    ? "bg-[#A24689] text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
@@ -483,10 +483,10 @@ export default function Attendance() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigateDate("prev")}
-                className="p-3 border-2 border-gray-200 rounded-xl hover:border-[#A24689] hover:bg-[#A24689]/5 transition-all duration-200"
+                className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
               >
                 <svg
-                  className="w-5 h-5 text-[#A24689]"
+                  className="w-5 h-5 text-gray-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -499,15 +499,15 @@ export default function Attendance() {
                   />
                 </svg>
               </button>
-              <div className="px-6 py-3 bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white rounded-xl text-sm font-semibold shadow-md min-w-[180px] text-center">
+              <div className="px-5 py-2.5 bg-[#A24689] text-white rounded-lg text-sm font-medium min-w-[160px] text-center">
                 {formatDate(currentDate)}
               </div>
               <button
                 onClick={() => navigateDate("next")}
-                className="p-3 border-2 border-gray-200 rounded-xl hover:border-[#A24689] hover:bg-[#A24689]/5 transition-all duration-200"
+                className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
               >
                 <svg
-                  className="w-5 h-5 text-[#A24689]"
+                  className="w-5 h-5 text-gray-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -525,9 +525,9 @@ export default function Attendance() {
 
           {/* Results count */}
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-600">
+            <p className="text-sm text-gray-600">
               Showing{" "}
-              <span className="text-[#A24689] font-bold">
+              <span className="text-gray-900 font-medium">
                 {filteredRecords.length}
               </span>{" "}
               of{" "}
@@ -551,35 +551,35 @@ export default function Attendance() {
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
-              <tr className="bg-gradient-to-r from-[#A24689]/10 to-[#8a3a73]/10 border-b-2 border-[#A24689]/20">
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Employee ID
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Employee Name
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Department
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Check In
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Check Out
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Work Hours
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Location
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#A24689] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -629,16 +629,16 @@ export default function Attendance() {
                   return (
                     <tr
                       key={record.id}
-                      className="hover:bg-[#A24689]/5 transition-all duration-150 border-b border-gray-100"
+                      className="hover:bg-gray-50 transition-colors duration-150"
                     >
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono">
+                          <span className="font-mono font-medium">
                             {employeeDetails.employeeId || `EMP-${String(record.employee_id).padStart(3, "0")}`}
                           </span>
                           {isLate && (
                             <span
-                              className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200"
+                              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800"
                               title={`Late by ${lateBy}`}
                             >
                               Late
@@ -646,56 +646,56 @@ export default function Attendance() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#A24689] to-[#8a3a73] flex items-center justify-center text-white text-sm font-bold mr-3 shadow-md">
+                          <div className="h-9 w-9 rounded-lg bg-[#A24689] flex items-center justify-center text-white text-sm font-medium mr-3">
                             {employeeDetails.name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")}
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-900">
+                            <div className="text-sm font-medium text-gray-900">
                               {employeeDetails.name}
                             </div>
-                            <div className="text-xs text-gray-500 font-medium">
+                            <div className="text-xs text-gray-500">
                               {employeeDetails.jobTitle}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {employeeDetails.department}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${getStatusBadge(
+                          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(
                             record.status.toLowerCase().replace(' ', '_')
                           )}`}
                         >
                           {record.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {new Date(record.date).toLocaleDateString('en-GB')}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {record.check_in_time || '-'}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {record.check_out_time || '-'}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm">
-                        <div className="text-gray-900 font-bold">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="text-gray-900 font-medium">
                           {record.hours_worked ? `${parseFloat(record.hours_worked).toFixed(2)} hrs` : '-'}
                         </div>
                         {record.extraHours !== "00:00" && (
-                          <div className="text-xs font-semibold text-emerald-600 mt-1">
+                          <div className="text-xs text-gray-500 mt-1">
                             +{record.extraHours} OT
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         <div className="flex items-center gap-2">
                           {record.location === "Remote" ? (
                             <svg
@@ -784,29 +784,29 @@ export default function Attendance() {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-5 bg-gradient-to-r from-gray-50 to-white border-t-2 border-gray-100 flex items-center justify-between">
-          <div className="text-sm font-medium text-gray-700">
-            Showing <span className="font-bold text-[#A24689]">1</span> to{" "}
-            <span className="font-bold text-[#A24689]">
+        <div className="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium text-gray-900">1</span> to{" "}
+            <span className="font-medium text-gray-900">
               {filteredRecords.length}
             </span>{" "}
             of{" "}
-            <span className="font-bold text-gray-900">
+            <span className="font-medium text-gray-900">
               {attendanceRecords.length}
             </span>{" "}
             results
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-[#A24689] hover:text-[#A24689] transition-all duration-200">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               Previous
             </button>
-            <button className="px-4 py-2 bg-gradient-to-r from-[#A24689] to-[#8a3a73] text-white rounded-xl text-sm font-semibold shadow-md">
+            <button className="px-4 py-2 bg-[#A24689] text-white rounded-lg text-sm font-medium">
               1
             </button>
-            <button className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-[#A24689] hover:text-[#A24689] transition-all duration-200">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               2
             </button>
-            <button className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-[#A24689] hover:text-[#A24689] transition-all duration-200">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               Next
             </button>
           </div>
@@ -815,13 +815,13 @@ export default function Attendance() {
 
       {/* Check In/Out Modal */}
       {showCheckInModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Check In/Out</h3>
               <button
                 onClick={() => setShowCheckInModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-all"
+                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -838,11 +838,11 @@ export default function Attendance() {
                 </svg>
               </button>
             </div>
-            <div className="bg-gradient-to-r from-[#A24689]/10 to-[#8a3a73]/10 rounded-xl p-4 mb-6 border-2 border-[#A24689]/20">
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
               <p className="text-sm font-medium text-gray-600 mb-1">
                 Current Time
               </p>
-              <p className="text-3xl font-bold text-[#A24689]">
+              <p className="text-3xl font-bold text-gray-900">
                 {currentTime.toLocaleTimeString()}
               </p>
               <p className="text-sm text-gray-500 mt-1">
@@ -854,11 +854,11 @@ export default function Attendance() {
                 })}
               </p>
               {checkInStatus && (
-                <div className="mt-3 pt-3 border-t border-[#A24689]/20">
+                <div className="mt-3 pt-3 border-t border-gray-200">
                   <p className="text-xs font-medium text-gray-600">Status:</p>
                   <p className={`text-sm font-semibold ${
-                    checkInStatus === 'checked-in' ? 'text-emerald-600' : 
-                    checkInStatus === 'checked-out' ? 'text-rose-600' : 'text-gray-600'
+                    checkInStatus === 'checked-in' ? 'text-[#A24689]' : 
+                    checkInStatus === 'checked-out' ? 'text-gray-600' : 'text-gray-600'
                   }`}>
                     {checkInStatus === 'checked-in' ? '✓ Checked In' : 
                      checkInStatus === 'checked-out' ? '✓ Checked Out' : 'Not Checked In'}
@@ -870,7 +870,7 @@ export default function Attendance() {
               <button 
                 onClick={handleCheckInSubmit}
                 disabled={checkInStatus === 'checked-in' || checkInStatus === 'checked-out' || loading}
-                className={`flex-1 px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-semibold flex items-center justify-center gap-2 ${
+                className={`flex-1 px-6 py-3 bg-[#A24689] text-white rounded-lg hover:bg-[#8a3a73] transition-colors duration-200 font-medium flex items-center justify-center gap-2 ${
                   (checkInStatus === 'checked-in' || checkInStatus === 'checked-out' || loading) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -892,7 +892,7 @@ export default function Attendance() {
               <button 
                 onClick={handleCheckOutSubmit}
                 disabled={checkInStatus !== 'checked-in' || loading}
-                className={`flex-1 px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-semibold flex items-center justify-center gap-2 ${
+                className={`flex-1 px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium flex items-center justify-center gap-2 ${
                   (checkInStatus !== 'checked-in' || loading) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
