@@ -1,18 +1,21 @@
 ﻿import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function SmartSchedulingAssistant({ formData, onApplySuggestion }) {
-  const [suggestions, setSuggestions] = useState(null);
+export default function SmartSchedulingAssistant({
+  startDate,
+  endDate,
+  employeeId,
+  requestType,
+}) {
+  const [predictions, setPredictions] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showAssistant, setShowAssistant] = useState(false);
 
   useEffect(() => {
     if (formData.fromDate && formData.toDate && formData.leaveType) {
       analyzeDates();
     } else {
-      setSuggestions(null);
-      setShowAssistant(false);
+      setPredictions(null);
     }
   }, [formData.fromDate, formData.toDate, formData.leaveType]);
 
@@ -28,18 +31,16 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
           toDate: formData.toDate,
           leaveType: formData.leaveType
         },
-        headers: { Authorization: Bearer +token }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data.success) {
-        setSuggestions(response.data.data);
-        setShowAssistant(true);
+        setPredictions(response.data.data);
       }
     } catch (err) {
-      console.error('Error fetching suggestions:', err);
+      console.error('Error fetching predictions:', err);
       setError(err.response?.data?.message || 'Failed to analyze dates');
-      setSuggestions(null);
-      setShowAssistant(false);
+      setPredictions(null);
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,6 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
       fromDate: alternative.fromDate,
       toDate: alternative.toDate
     });
-    setShowAssistant(false);
   };
 
   if (!formData.fromDate || !formData.toDate) {
@@ -76,11 +76,11 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
     );
   }
 
-  if (!suggestions || !showAssistant) {
+  if (!predictions) {
     return null;
   }
 
-  const { analysis, conflicts, recommendations, alternativeDates } = suggestions;
+  const { analysis, conflicts, alternativeDates } = predictions;
 
   const getRiskColor = (level) => {
     switch (level) {
@@ -98,55 +98,46 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
   };
 
   return (
-    <div className='mt-4 space-y-4'>
-      <div className='bg-white border-2 border-purple-600 rounded-lg p-4 shadow-sm'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h3 className='font-bold text-lg text-gray-900'>Smart Scheduling Analysis</h3>
-            <p className='text-sm text-gray-600'>AI-powered leave request insights</p>
-          </div>
-          <button onClick={() => setShowAssistant(false)} className='text-gray-400 hover:text-gray-600 text-xl font-bold'></button>
-        </div>
-      </div>
-
-      <div className='bg-white border border-gray-200 rounded-lg p-5 shadow-sm'>
-        <h4 className='font-semibold text-gray-900 mb-4 text-base'>Approval Analysis</h4>
+    <div className='mt-4 space-y-3'>
+      {/* Approval Prediction Card */}
+      <div className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
+        <h4 className='font-semibold text-gray-900 mb-3 text-base'>Leave Approval Prediction</h4>
         
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-          <div className='text-center p-3 bg-gray-50 rounded-lg'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
+          <div className='text-center p-3 bg-gray-50 rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Approval Chance</p>
             <p className={'text-2xl font-bold '+getApprovalColor(analysis.approvalProbability)}>{analysis.approvalProbability}%</p>
           </div>
           
-          <div className='text-center p-3 bg-gray-50 rounded-lg'>
+          <div className='text-center p-3 bg-gray-50 rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Risk Level</p>
             <span className={'inline-block px-3 py-1 rounded-full text-sm font-semibold border '+getRiskColor(analysis.riskLevel)}>{analysis.riskLevel}</span>
           </div>
           
-          <div className='text-center p-3 bg-gray-50 rounded-lg'>
+          <div className='text-center p-3 bg-gray-50 rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Team Coverage</p>
             <p className='text-2xl font-bold text-gray-900'>{analysis.teamCoverage}%</p>
           </div>
           
-          <div className='text-center p-3 bg-gray-50 rounded-lg'>
-            <p className='text-xs text-gray-600 mb-1'>Conflicts</p>
+          <div className='text-center p-3 bg-gray-50 rounded-lg border border-gray-200'>
+            <p className='text-xs text-gray-600 mb-1'>Team Conflicts</p>
             <p className='text-2xl font-bold text-gray-900'>{analysis.peopleOnLeave}</p>
           </div>
         </div>
       </div>
 
       {conflicts && conflicts.length > 0 && (
-        <div className='bg-white border border-yellow-200 rounded-lg p-5 shadow-sm'>
-          <h4 className='font-semibold text-gray-900 mb-3 text-base'>Team Members On Leave</h4>
+        <div className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
+          <h4 className='font-semibold text-gray-900 mb-3 text-sm'>Team Members On Leave During This Period</h4>
           <div className='space-y-2'>
             {conflicts.map((conflict, index) => (
-              <div key={index} className='flex items-center justify-between p-3 bg-yellow-50 rounded border-l-4 border-yellow-400'>
+              <div key={index} className='flex items-center justify-between p-2 bg-gray-50 rounded border-l-3 border-gray-300'>
                 <div className='flex-1'>
-                  <p className='font-medium text-gray-900'>{conflict.employee}</p>
-                  <p className='text-sm text-gray-600'>{conflict.role}</p>
+                  <p className='font-medium text-gray-900 text-sm'>{conflict.employee}</p>
+                  <p className='text-xs text-gray-600'>{conflict.role}</p>
                 </div>
                 <div className='text-right'>
-                  <p className='text-sm text-gray-700'>{new Date(conflict.from).toLocaleDateString()} - {new Date(conflict.to).toLocaleDateString()}</p>
+                  <p className='text-xs text-gray-700'>{new Date(conflict.from).toLocaleDateString()} - {new Date(conflict.to).toLocaleDateString()}</p>
                   <p className='text-xs text-gray-500'>{conflict.type}</p>
                 </div>
               </div>
@@ -155,38 +146,24 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
         </div>
       )}
 
-      {recommendations && recommendations.length > 0 && (
-        <div className='bg-white border border-blue-200 rounded-lg p-5 shadow-sm'>
-          <h4 className='font-semibold text-gray-900 mb-3 text-base'>Recommendations</h4>
-          <ul className='space-y-2'>
-            {recommendations.map((rec, index) => (
-              <li key={index} className='flex items-start gap-3 p-3 bg-blue-50 rounded'>
-                <span className={'inline-block w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center shrink-0 '+(rec.priority === 'high' ? 'bg-red-600' : rec.priority === 'medium' ? 'bg-yellow-600' : 'bg-blue-600')}>{index + 1}</span>
-                <p className='text-sm text-gray-700 flex-1'>{rec.text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {alternativeDates && alternativeDates.length > 0 && (
-        <div className='bg-white border border-green-200 rounded-lg p-5 shadow-sm'>
-          <h4 className='font-semibold text-gray-900 mb-3 text-base'>Suggested Alternative Dates</h4>
-          <div className='space-y-3'>
+        <div className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
+          <h4 className='font-semibold text-gray-900 mb-3 text-sm'>Suggested Alternative Dates</h4>
+          <div className='space-y-2'>
             {alternativeDates.map((alt, index) => (
-              <div key={index} className='flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200'>
+              <div key={index} className='flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200'>
                 <div className='flex-1'>
-                  <div className='flex items-center gap-4 mb-2'>
-                    <span className='text-sm font-medium text-gray-700'>{new Date(alt.fromDate).toLocaleDateString()} - {new Date(alt.toDate).toLocaleDateString()}</span>
-                    <span className='text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium'>{alt.days} days</span>
+                  <div className='flex items-center gap-3 mb-1'>
+                    <span className='text-sm font-medium text-gray-900'>{new Date(alt.fromDate).toLocaleDateString()} - {new Date(alt.toDate).toLocaleDateString()}</span>
+                    <span className='text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium'>{alt.days} days</span>
                   </div>
-                  <p className='text-sm text-gray-600'>{alt.reason}</p>
-                  <div className='flex items-center gap-4 mt-2'>
+                  <p className='text-xs text-gray-600 mb-1'>{alt.reason}</p>
+                  <div className='flex items-center gap-3'>
                     <span className='text-xs text-gray-500'>Conflicts: <span className='font-semibold text-gray-700'>{alt.conflicts}</span></span>
-                    <span className='text-xs text-gray-500'>Approval Chance: <span className={'font-semibold '+getApprovalColor(alt.approvalChance)}>{alt.approvalChance}%</span></span>
+                    <span className='text-xs text-gray-500'>Approval: <span className={'font-semibold '+getApprovalColor(alt.approvalChance)}>{alt.approvalChance}%</span></span>
                   </div>
                 </div>
-                <button onClick={() => handleUseAlternative(alt)} className='ml-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium'>Use These Dates</button>
+                <button onClick={() => handleUseAlternative(alt)} className='ml-3 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium'>Apply</button>
               </div>
             ))}
           </div>
@@ -194,8 +171,8 @@ export default function SmartSchedulingAssistant({ formData, onApplySuggestion }
       )}
 
       {analysis.criticalRolesAffected > 0 && (
-        <div className='bg-red-50 border border-red-300 rounded-lg p-4'>
-          <p className='text-sm text-red-800 font-medium'>Warning: {analysis.criticalRolesAffected} critical role(s) will be affected during this period</p>
+        <div className='bg-red-50 border border-red-200 rounded-lg p-3'>
+          <p className='text-xs text-red-800 font-medium'>⚠ {analysis.criticalRolesAffected} critical role(s) will be affected during this period</p>
         </div>
       )}
     </div>

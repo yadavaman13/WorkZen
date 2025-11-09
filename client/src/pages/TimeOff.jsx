@@ -43,7 +43,7 @@ export default function TimeOff() {
       }
     } catch (error) {
       console.error("Error fetching time off requests:", error);
-      alert("Failed to fetch time off requests");
+      // alert("Failed to fetch time off requests");
     } finally {
       setLoading(false);
     }

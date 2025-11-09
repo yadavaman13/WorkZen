@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios from '../../api/axios';
 
 export default function Step4Review({ profile, userData, onPrev }) {
   const [submitting, setSubmitting] = useState(false);
@@ -16,7 +16,7 @@ export default function Step4Review({ profile, userData, onPrev }) {
       
       // Submit for HR approval
       const token = localStorage.getItem('token');
-      await axios.post('/api/onboarding/submit', {}, {
+      await axios.post('/onboarding/submit', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

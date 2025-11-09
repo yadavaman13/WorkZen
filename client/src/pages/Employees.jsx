@@ -262,7 +262,7 @@ export default function Employees() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/users/employees', {
+      const response = await axios.get('/users/employees', {
         headers: {
           Authorization: `Bearer ${token}`
         }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 
 export default function HROnboardingReview() {
   const [pendingProfiles, setPendingProfiles] = useState([]);
@@ -18,7 +18,7 @@ export default function HROnboardingReview() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/onboarding/pending', {
+      const response = await axios.get('/onboarding/pending', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPendingProfiles(response.data.profiles || []);

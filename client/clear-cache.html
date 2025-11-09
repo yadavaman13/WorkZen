@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache - WorkZen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #A24689;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: #A24689;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #8a3a73;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(162, 70, 137, 0.4);
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 WorkZen Cache Clear</h1>
+        <p>Click the button below to clear localStorage and fix the infinite reload issue.</p>
+        <button onclick="clearCache()">Clear Cache & Reload</button>
+        <p class="success" id="success">✅ Cache cleared! Redirecting...</p>
+    </div>
+
+    <script>
+        function clearCache() {
+            // Clear all localStorage
+            localStorage.clear();
+            
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+            
+            // Redirect to login after 1 second
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+        
+        // Auto-clear if URL has ?autoclear parameter
+        if (window.location.search.includes('autoclear')) {
+            clearCache();
+        }
+    </script>
+</body>
+</html>

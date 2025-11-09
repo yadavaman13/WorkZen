@@ -42,7 +42,7 @@ function Onboarding() {
       }
       
       // Create employee account
-      const response = await axios.post('/api/user/create-employee', {
+      const response = await axios.post('/user/create-employee', {
         email: employeeForm.email,
         name: employeeForm.name,
         phone: employeeForm.phone,

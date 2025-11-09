@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../api/axios';
 import Step1Personal from './Step1Personal';
 import Step2Bank from './Step2Bank';
 import Step3Documents from './Step3Documents';
@@ -26,14 +26,14 @@ export default function OnboardingWizard() {
       }
 
       // Get user data
-      const userResponse = await axios.get('/api/user/me', {
+      const userResponse = await axios.get('/user/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUserData(userResponse.data.user);
 
       // Get or create onboarding profile
       try {
-        const profileResponse = await axios.get('/api/onboarding/profile', {
+        const profileResponse = await axios.get('/onboarding/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(profileResponse.data.profile);
@@ -41,7 +41,7 @@ export default function OnboardingWizard() {
       } catch (error) {
         if (error.response?.status === 404) {
           // Create new profile
-          const createResponse = await axios.post('/api/onboarding/create', {}, {
+          const createResponse = await axios.post('/onboarding/create', {}, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setProfile(createResponse.data.profile);
@@ -62,7 +62,7 @@ export default function OnboardingWizard() {
   const handleNextStep = async (stepData) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put('/api/onboarding/update-step', {
+      await axios.put('/onboarding/update-step', {
         step: currentStep,
         data: stepData
       }, {
@@ -87,7 +87,7 @@ export default function OnboardingWizard() {
   const handleSubmitForApproval = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('/api/onboarding/submit', {}, {
+      await axios.post('/onboarding/submit', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

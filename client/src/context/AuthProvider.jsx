@@ -5,34 +5,26 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  // Clean up old mock data on first load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token === "mock-jwt-token-for-development") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.reload();
+    }
+  }, []);
+
   const [user, setUser] = useState(() => {
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      // If no user in localStorage, use a mock user for development
-      if (!storedUser) {
-        const mockUser = {
-          id: 1,
-          name: "Test User",
-          email: "test@workzen.com",
-          role: "admin", // Change this to 'employee', 'hr', 'payroll', or 'admin' as needed
-        };
-        localStorage.setItem("user", JSON.stringify(mockUser));
-        return mockUser;
-      }
-      return storedUser;
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
     } catch {
       return null;
     }
   });
   const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem("token");
-    // If no token, create a mock token for development
-    if (!storedToken) {
-      const mockToken = "mock-jwt-token-for-development";
-      localStorage.setItem("token", mockToken);
-      return mockToken;
-    }
-    return storedToken;
+    return localStorage.getItem("token") || null;
   });
   const navigate = useNavigate();
 
@@ -45,7 +37,7 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (email, password) => {
-    const { data } = await api.post("/api/auth/login", { email, password });
+    const { data } = await api.post("/auth/login", { email, password });
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
     setToken(data.token);
@@ -56,7 +48,7 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (payload) => {
-    const { data } = await api.post('/api/auth/register', payload)
+    const { data } = await api.post('/auth/register', payload)
     // No longer auto-login after registration - OTP verification required first
     // Return the email so Register.jsx can pass it to VerifyOtp page
     return { email: payload.email, msg: data.msg }
