@@ -1,7 +1,5 @@
 <div align="center">
-  
-  <!-- Logo Placeholder -->
-  <img src="https://via.placeholder.com/200x200/A24689/FFFFFF?text=WorkZen" alt="WorkZen Logo" width="200"/>
+
   
   # WorkZen HRMS
   
