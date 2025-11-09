@@ -1,7 +1,7 @@
 // src/pages/Employees.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios";
 
 function EmployeeCard({ employee, onClick }) {
   // Determine status indicator based on employee status

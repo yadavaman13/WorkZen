@@ -67,6 +67,9 @@ function Onboarding() {
       }
     } catch (error) {
       console.error('Error creating employee:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Full error:', JSON.stringify(error.response, null, 2));
       
       // Handle authentication errors
       if (error.response?.status === 401 || error.response?.status === 403) {
