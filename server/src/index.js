@@ -25,6 +25,10 @@ db.init()
     try {
       const { renameReasonToDescription } = require('./migrations/rename_reason_to_description');
       await renameReasonToDescription();
+      
+      // Create user_profiles table
+      const { createUserProfilesTable } = require('./migrations/createUserProfilesTable');
+      await createUserProfilesTable();
     } catch (migrationError) {
       console.warn('⚠️  Migration warning:', migrationError.message);
     }
@@ -69,12 +73,19 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/profile', require('./routes/profileRoutes'));
 app.use('/api/timeoff', require('./routes/timeOffRoutes'));
 app.use('/api/onboarding', require('./routes/onboardingRoutes'));
 
 // Comprehensive Leave Management Routes
 app.use('/api/leave', require('./routes/comprehensiveLeaveRoutes'));
 app.use('/api/merge-queue', require('./routes/mergeQueueRoutes'));
+
+// Payroll Management Routes
+app.use('/api/payroll', require('./routes/payroll'));
+
+// Attendance Management Routes
+app.use('/api/attendance', require('./routes/attendance'));
 
 // Start cron scheduler for attendance detection
 const cronScheduler = require('./services/cronScheduler');
