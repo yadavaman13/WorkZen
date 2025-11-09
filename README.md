@@ -20,7 +20,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#about)
 - [Features](#features)
@@ -38,73 +38,80 @@
 
 ---
 
-## 🎯 About
+## About
 
 **WorkZen HRMS** is a comprehensive Human Resource Management System designed to simplify and automate HR operations for modern organizations. Built with cutting-edge technologies, it provides an intuitive interface for managing employees, attendance, payroll, leave requests, and more.
 
 ### Why WorkZen?
 
-- 🚀 **Modern & Fast**: Built with React 19 and Vite for lightning-fast performance
-- 🔐 **Secure**: JWT-based authentication with role-based access control
-- 📊 **Comprehensive**: Complete HR suite from onboarding to payroll
-- 🎨 **Beautiful UI**: Clean, professional interface with Tailwind CSS
-- 📱 **Responsive**: Works seamlessly on desktop, tablet, and mobile devices
-- 🔄 **Real-time**: Live attendance tracking with geolocation support
+- **Modern & Fast**: Built with React 19 and Vite for lightning-fast performance
+- **Secure**: JWT-based authentication with role-based access control
+- **Comprehensive**: Complete HR suite from onboarding to payroll
+- **Beautiful UI**: Clean, professional interface with Tailwind CSS
+- **Responsive**: Works seamlessly on desktop, tablet, and mobile devices
+- **Real-time**: Live attendance tracking with geolocation support
 
 ---
 
-## ✨ Features
+## Features
 
-### 👥 Employee Management
-- ✅ Employee onboarding and offboarding
-- ✅ Profile management with document verification
-- ✅ Department and role assignment
-- ✅ Employee directory with advanced search
-- ✅ Organizational hierarchy visualization
+### Employee Management
 
-### ⏰ Attendance System
-- ✅ **Multi-shift Support**: Fixed shifts, rotating rosters, flexible schedules
-- ✅ **Punch Tracking**: Biometric, mobile app, and web-based check-in/out
-- ✅ **Geofencing**: Location-based attendance validation
-- ✅ **Anomaly Detection**: Missing punches, late arrivals, early departures
-- ✅ **Overtime Calculation**: Automatic OT tracking with policy enforcement
-- ✅ **Night Shifts**: Cross-midnight shift handling
-- ✅ **Break Management**: Paid, unpaid, and auto-deduct breaks
-- ✅ **Regularization**: Request and approve attendance corrections
-- ✅ **Real-time Dashboard**: Live attendance stats and insights
+- Employee onboarding and offboarding
+- Profile management with document verification
+- Department and role assignment
+- Employee directory with advanced search
+- Organizational hierarchy visualization
 
-### 🏖️ Leave Management
-- ✅ Multiple leave types (Casual, Sick, Privilege, WFH)
-- ✅ Leave balance tracking
-- ✅ Approval workflow
-- ✅ Leave calendar and planning
-- ✅ Half-day and partial leave support
+### Attendance System
 
-### 💰 Payroll Management
-- ✅ Salary structure configuration
-- ✅ Automated payroll processing
-- ✅ Deduction and allowance management
-- ✅ Payslip generation
-- ✅ Tax calculation support
+- **Multi-shift Support**: Fixed shifts, rotating rosters, flexible schedules
+- **Punch Tracking**: Biometric, mobile app, and web-based check-in/out
+- **Geofencing**: Location-based attendance validation
+- **Anomaly Detection**: Missing punches, late arrivals, early departures
+- **Overtime Calculation**: Automatic OT tracking with policy enforcement
+- **Night Shifts**: Cross-midnight shift handling
+- **Break Management**: Paid, unpaid, and auto-deduct breaks
+- **Regularization**: Request and approve attendance corrections
+- **Real-time Dashboard**: Live attendance stats and insights
 
-### 📊 Reports & Analytics
-- ✅ Attendance reports and heatmaps
-- ✅ Leave analytics
-- ✅ Payroll summaries
-- ✅ Employee performance metrics
-- ✅ Custom report builder
+### Leave Management
 
-### 🔐 Access Control
-- ✅ **Role-based Access**: Employee, HR, Payroll, Admin roles
-- ✅ **Permission Management**: Granular access control
-- ✅ **Audit Logs**: Complete activity tracking
-- ✅ **Secure Authentication**: JWT tokens with refresh mechanism
+- Multiple leave types (Casual, Sick, Privilege, WFH)
+- Leave balance tracking
+- Approval workflow
+- Leave calendar and planning
+- Half-day and partial leave support
+
+### Payroll Management
+
+- Salary structure configuration
+- Automated payroll processing
+- Deduction and allowance management
+- Payslip generation
+- Tax calculation support
+
+### Reports & Analytics
+
+- Attendance reports and heatmaps
+- Leave analytics
+- Payroll summaries
+- Employee performance metrics
+- Custom report builder
+
+### Access Control
+
+- **Role-based Access**: Employee, HR, Payroll, Admin roles
+- **Permission Management**: Granular access control
+- **Audit Logs**: Complete activity tracking
+- **Secure Authentication**: JWT tokens with refresh mechanism
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
+
 - **React 19.1.0** - UI library with latest features
 - **Vite 7.2.2** - Fast build tool and dev server
 - **Tailwind CSS 4.1.17** - Utility-first CSS framework
@@ -112,6 +119,7 @@
 - **Axios** - HTTP client for API calls
 
 ### Backend
+
 - **Node.js 18+** - JavaScript runtime
 - **Express.js** - Web application framework
 - **PostgreSQL 15** - Relational database
@@ -119,13 +127,14 @@
 - **Bcrypt** - Password hashing
 
 ### DevOps & Tools
+
 - **Git** - Version control
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -167,11 +176,12 @@
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
 - **PostgreSQL** (v15 or higher) - [Download](https://www.postgresql.org/download/)
 - **Git** - [Download](https://git-scm.com/)
@@ -186,11 +196,13 @@ cd WorkZen
 ### Step 2: Setup Database
 
 1. Create a PostgreSQL database:
+
 ```sql
 CREATE DATABASE workzen_db;
 ```
 
 2. Run the database migrations (if available):
+
 ```bash
 cd server
 npm run migrate
@@ -199,12 +211,14 @@ npm run migrate
 ### Step 3: Install Dependencies
 
 #### Backend Setup
+
 ```bash
 cd server
 npm install
 ```
 
 #### Frontend Setup
+
 ```bash
 cd ../client
 npm install
@@ -213,7 +227,9 @@ npm install
 ### Step 4: Environment Configuration
 
 #### Backend (.env)
+
 Create a `.env` file in the `server` directory:
+
 ```env
 # Server Configuration
 PORT=5000
@@ -241,40 +257,48 @@ CLIENT_URL=http://localhost:5173
 ```
 
 #### Frontend (.env)
+
 Create a `.env` file in the `client` directory:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Development Mode
 
 #### Start Backend Server
+
 ```bash
 cd server
 npm run dev
 ```
+
 Server will run on `http://localhost:5000`
 
 #### Start Frontend Development Server
+
 ```bash
 cd client
 npm run dev
 ```
+
 Frontend will run on `http://localhost:5173`
 
 ### Production Build
 
 #### Build Frontend
+
 ```bash
 cd client
 npm run build
 ```
 
 #### Start Production Server
+
 ```bash
 cd server
 npm start
@@ -282,9 +306,10 @@ npm start
 
 ---
 
-## 📡 API Documentation
+## API Documentation
 
 ### Base URL
+
 ```
 http://localhost:5000/api
 ```
@@ -292,6 +317,7 @@ http://localhost:5000/api
 ### Authentication Endpoints
 
 #### Register User
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -306,6 +332,7 @@ Content-Type: application/json
 ```
 
 #### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -319,18 +346,21 @@ Content-Type: application/json
 ### Employee Endpoints
 
 #### Get All Employees
+
 ```http
 GET /api/employees
 Authorization: Bearer {token}
 ```
 
 #### Get Employee by ID
+
 ```http
 GET /api/employees/:id
 Authorization: Bearer {token}
 ```
 
 #### Create Employee
+
 ```http
 POST /api/employees
 Authorization: Bearer {token}
@@ -350,12 +380,14 @@ Content-Type: application/json
 ### Attendance Endpoints
 
 #### Get Attendance Records
+
 ```http
 GET /api/attendance?date=2025-11-09&employeeId=1
 Authorization: Bearer {token}
 ```
 
 #### Mark Attendance
+
 ```http
 POST /api/attendance
 Authorization: Bearer {token}
@@ -371,6 +403,7 @@ Content-Type: application/json
 ```
 
 #### Request Regularization
+
 ```http
 POST /api/attendance/regularization
 Authorization: Bearer {token}
@@ -390,11 +423,12 @@ Content-Type: application/json
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Key Tables
 
 #### Users
+
 ```sql
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
@@ -406,6 +440,7 @@ CREATE TABLE users (
 ```
 
 #### Employees
+
 ```sql
 CREATE TABLE employees (
   id SERIAL PRIMARY KEY,
@@ -422,6 +457,7 @@ CREATE TABLE employees (
 ```
 
 #### Attendance
+
 ```sql
 CREATE TABLE attendance (
   id SERIAL PRIMARY KEY,
@@ -439,6 +475,7 @@ CREATE TABLE attendance (
 ```
 
 #### Shifts
+
 ```sql
 CREATE TABLE shifts (
   id SERIAL PRIMARY KEY,
@@ -454,49 +491,56 @@ CREATE TABLE shifts (
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Dashboard
+
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Dashboard+Preview" alt="Dashboard" width="800"/>
 
-*Main dashboard with real-time metrics and quick actions*
+_Main dashboard with real-time metrics and quick actions_
 
 ---
 
 ### Attendance Management
+
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Attendance+Management" alt="Attendance" width="800"/>
 
-*Comprehensive attendance tracking with shift details, anomalies, and approvals*
+_Comprehensive attendance tracking with shift details, anomalies, and approvals_
 
 ---
 
 ### Employee Directory
+
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Employee+Directory" alt="Employees" width="800"/>
 
-*Employee management with advanced search and filtering*
+_Employee management with advanced search and filtering_
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these steps:
 
 1. **Fork the repository**
+
    ```bash
    git clone https://github.com/yadavaman13/WorkZen.git
    ```
 
 2. **Create a feature branch**
+
    ```bash
    git checkout -b feature/amazing-feature
    ```
 
 3. **Commit your changes**
+
    ```bash
    git commit -m 'Add some amazing feature'
    ```
 
 4. **Push to the branch**
+
    ```bash
    git push origin feature/amazing-feature
    ```
@@ -504,6 +548,7 @@ We welcome contributions! Please follow these steps:
 5. **Open a Pull Request**
 
 ### Coding Standards
+
 - Follow ESLint configuration
 - Write meaningful commit messages
 - Add comments for complex logic
@@ -512,7 +557,7 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -534,13 +579,13 @@ copies or substantial portions of the Software.
 
 ---
 
-## 👨‍💻 Authors
+## Authors
 
-- **Aman Yadav** - *Lead Developer* - [@yadavaman13](https://github.com/yadavaman13)
+**Aman Yadav** - _Lead Developer_ - [@yadavaman13](https://github.com/yadavaman13)
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - React team for the amazing framework
 - Tailwind CSS for the utility-first CSS approach
@@ -549,7 +594,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 📞 Contact & Support
+## Contact & Support
 
 - **GitHub Issues**: [Report a bug](https://github.com/yadavaman13/WorkZen/issues)
 - **Email**: support@workzen.io
@@ -558,9 +603,10 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Version 2.0 (Upcoming)
+
 - [ ] Mobile application (React Native)
 - [ ] Advanced analytics with charts
 - [ ] AI-powered insights
@@ -573,6 +619,7 @@ copies or substantial portions of the Software.
 - [ ] Asset management
 
 ### Version 1.5
+
 - [ ] Email notifications
 - [ ] Calendar integration
 - [ ] Document management
@@ -583,9 +630,9 @@ copies or substantial portions of the Software.
 
 <div align="center">
   
-  ### ⭐ Star this repository if you find it helpful!
+  **Star this repository if you find it helpful**
   
-  Made with ❤️ by the WorkZen Team
+  Made by the WorkZen Team
   
   © 2025 WorkZen. All rights reserved.
   
