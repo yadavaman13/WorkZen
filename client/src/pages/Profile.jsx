@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import { useAuth } from "../context/AuthProvider.jsx";
+import api from "../api/axios";
 
 export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(
     user?.role === "admin" || user?.role === "payroll" ? "salary-info" : "resume"
   );
@@ -29,8 +32,8 @@ export default function Profile() {
   const [skills, setSkills] = useState([]);
   const [certifications, setCertifications] = useState([]);
   const [salaryData, setSalaryData] = useState({
-    monthWage: 50000,
-    yearlyWage: 600000,
+    monthWage: 0,
+    yearlyWage: 0,
     workingDaysInWeek: 5,
     breakTime: 1,
   });
@@ -55,46 +58,76 @@ export default function Profile() {
   });
 
   useEffect(() => {
-    const mockData = {
-      name: user?.name || "John Doe",
-      loginId: "john.doe",
-      email: user?.email || "john.doe@workzen.com",
-      mobile: "+1234567890",
-      company: "WorkZen Technologies",
-      department: "Engineering",
-      manager: "Jane Smith",
-      location: "New York, USA",
-    };
-    setProfileData(mockData);
+    fetchProfileData();
+  }, []);
 
-    setAboutData({
-      about: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-      whatILove: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-      interests: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500's, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    });
+  const fetchProfileData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await api.get('/profile');
+      const { user: userData, profile } = response.data;
 
-    setSkills(["JavaScript", "React", "Node.js", "Python"]);
-    setCertifications(["AWS Certified Developer", "Google Cloud Professional"]);
+      // Set basic profile data
+      setProfileData({
+        name: userData.name || "",
+        loginId: userData.employee_id || "",
+        email: userData.email || "",
+        mobile: userData.phone || "",
+        company: userData.company_name || "",
+        department: profile.department || "",
+        manager: profile.manager || "",
+        location: profile.location || "",
+      });
 
-    setPrivateInfo({
-      dateOfBirth: "1990-01-15",
-      residingAddress: "123 Main Street, Apartment 4B, New York, NY 10001",
-      nationality: "American",
-      personalEmail: "john.doe.personal@gmail.com",
-      gender: "Male",
-      maritalStatus: "Single",
-      dateOfJoining: "2023-01-15",
-    });
+      // Set about data
+      setAboutData({
+        about: profile.about || "",
+        whatILove: profile.what_i_love || "",
+        interests: profile.interests || "",
+      });
 
-    setSalaryInfo({
-      accountNumber: "1234567890123456",
-      bankName: "Chase Bank",
-      ifscCode: "CHAS0001234",
-      panNo: "ABCDE1234F",
-      uanNo: "123456789012",
-      empCode: "WZ2023001",
-    });
-  }, [user]);
+      // Set skills and certifications
+      setSkills(profile.skills || []);
+      setCertifications(profile.certifications || []);
+
+      // Set salary data
+      setSalaryData({
+        monthWage: parseFloat(profile.month_wage) || 0,
+        yearlyWage: parseFloat(profile.yearly_wage) || 0,
+        workingDaysInWeek: profile.working_days_in_week || 5,
+        breakTime: parseFloat(profile.break_time) || 1,
+      });
+
+      // Set private info
+      setPrivateInfo({
+        dateOfBirth: profile.date_of_birth || "",
+        residingAddress: profile.residing_address || "",
+        nationality: profile.nationality || "",
+        personalEmail: profile.personal_email || "",
+        gender: profile.gender || "",
+        maritalStatus: profile.marital_status || "",
+        dateOfJoining: profile.date_of_joining || userData.created_at?.split('T')[0] || "",
+      });
+
+      // Set salary info
+      setSalaryInfo({
+        accountNumber: profile.account_number || "",
+        bankName: profile.bank_name || "",
+        ifscCode: profile.ifsc_code || "",
+        panNo: profile.pan_no || "",
+        uanNo: profile.uan_no || "",
+        empCode: userData.employee_id || "",
+      });
+
+    } catch (error) {
+      console.error("Failed to fetch profile data:", error);
+      setError(error.response?.data?.msg || "Failed to load profile data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAboutEdit = (field) => {
     console.log("Edit", field);
@@ -124,6 +157,37 @@ export default function Profile() {
     ...(user?.role === "admin" || user?.role === "payroll" ? [{ id: "salary-info", label: "Salary Info" }] : []),
     { id: "security", label: "Security" },
   ];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-[#A24689] border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-gray-500">Loading profile...</div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">{error}</div>
+            <button
+              onClick={fetchProfileData}
+              className="px-4 py-2 bg-[#A24689] text-white rounded-lg hover:bg-[#8a3a73] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

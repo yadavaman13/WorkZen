@@ -25,6 +25,10 @@ db.init()
     try {
       const { renameReasonToDescription } = require('./migrations/rename_reason_to_description');
       await renameReasonToDescription();
+      
+      // Create user_profiles table
+      const { createUserProfilesTable } = require('./migrations/createUserProfilesTable');
+      await createUserProfilesTable();
     } catch (migrationError) {
       console.warn('⚠️  Migration warning:', migrationError.message);
     }
@@ -68,6 +72,7 @@ db.init()
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/profile', require('./routes/profileRoutes'));
 app.use('/api/timeoff', require('./routes/timeOffRoutes'));
 
 // Comprehensive Leave Management Routes
