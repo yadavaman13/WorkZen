@@ -20,7 +20,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#about)
 - [Features](#features)
@@ -38,71 +38,71 @@
 
 ---
 
-## 🎯 About
+## About
 
 **WorkZen HRMS** is a comprehensive Human Resource Management System designed to simplify and automate HR operations for modern organizations. Built with cutting-edge technologies, it provides an intuitive interface for managing employees, attendance, payroll, leave requests, and more.
 
 ### Why WorkZen?
 
-- 🚀 **Modern & Fast**: Built with React 19 and Vite for lightning-fast performance
-- 🔐 **Secure**: JWT-based authentication with role-based access control
-- 📊 **Comprehensive**: Complete HR suite from onboarding to payroll
-- 🎨 **Beautiful UI**: Clean, professional interface with Tailwind CSS
-- 📱 **Responsive**: Works seamlessly on desktop, tablet, and mobile devices
-- 🔄 **Real-time**: Live attendance tracking with geolocation support
+- **Modern & Fast**: Built with React 19 and Vite for lightning-fast performance
+- **Secure**: JWT-based authentication with role-based access control
+- **Comprehensive**: Complete HR suite from onboarding to payroll
+- **Beautiful UI**: Clean, professional interface with Tailwind CSS
+- **Responsive**: Works seamlessly on desktop, tablet, and mobile devices
+- **Real-time**: Live attendance tracking with geolocation support
 
 ---
 
-## ✨ Features
+## Features
 
-### 👥 Employee Management
-- ✅ Employee onboarding and offboarding
-- ✅ Profile management with document verification
-- ✅ Department and role assignment
-- ✅ Employee directory with advanced search
-- ✅ Organizational hierarchy visualization
+### Employee Management
+- Employee onboarding and offboarding
+- Profile management with document verification
+- Department and role assignment
+- Employee directory with advanced search
+- Organizational hierarchy visualization
 
-### ⏰ Attendance System
-- ✅ **Multi-shift Support**: Fixed shifts, rotating rosters, flexible schedules
-- ✅ **Punch Tracking**: Biometric, mobile app, and web-based check-in/out
-- ✅ **Geofencing**: Location-based attendance validation
-- ✅ **Anomaly Detection**: Missing punches, late arrivals, early departures
-- ✅ **Overtime Calculation**: Automatic OT tracking with policy enforcement
-- ✅ **Night Shifts**: Cross-midnight shift handling
-- ✅ **Break Management**: Paid, unpaid, and auto-deduct breaks
-- ✅ **Regularization**: Request and approve attendance corrections
-- ✅ **Real-time Dashboard**: Live attendance stats and insights
+### Attendance System
+- **Multi-shift Support**: Fixed shifts, rotating rosters, flexible schedules
+- **Punch Tracking**: Biometric, mobile app, and web-based check-in/out
+- **Geofencing**: Location-based attendance validation
+- **Anomaly Detection**: Missing punches, late arrivals, early departures
+- **Overtime Calculation**: Automatic OT tracking with policy enforcement
+- **Night Shifts**: Cross-midnight shift handling
+- **Break Management**: Paid, unpaid, and auto-deduct breaks
+- **Regularization**: Request and approve attendance corrections
+- **Real-time Dashboard**: Live attendance stats and insights
 
-### 🏖️ Leave Management
-- ✅ Multiple leave types (Casual, Sick, Privilege, WFH)
-- ✅ Leave balance tracking
-- ✅ Approval workflow
-- ✅ Leave calendar and planning
-- ✅ Half-day and partial leave support
+### Leave Management
+- Multiple leave types (Casual, Sick, Privilege, WFH)
+- Leave balance tracking
+- Approval workflow
+- Leave calendar and planning
+- Half-day and partial leave support
 
-### 💰 Payroll Management
-- ✅ Salary structure configuration
-- ✅ Automated payroll processing
-- ✅ Deduction and allowance management
-- ✅ Payslip generation
-- ✅ Tax calculation support
+### Payroll Management
+- Salary structure configuration
+- Automated payroll processing
+- Deduction and allowance management
+- Payslip generation
+- Tax calculation support
 
-### 📊 Reports & Analytics
-- ✅ Attendance reports and heatmaps
-- ✅ Leave analytics
-- ✅ Payroll summaries
-- ✅ Employee performance metrics
-- ✅ Custom report builder
+### Reports & Analytics
+- Attendance reports and heatmaps
+- Leave analytics
+- Payroll summaries
+- Employee performance metrics
+- Custom report builder
 
-### 🔐 Access Control
-- ✅ **Role-based Access**: Employee, HR, Payroll, Admin roles
-- ✅ **Permission Management**: Granular access control
-- ✅ **Audit Logs**: Complete activity tracking
-- ✅ **Secure Authentication**: JWT tokens with refresh mechanism
+### Access Control
+- **Role-based Access**: Employee, HR, Payroll, Admin roles
+- **Permission Management**: Granular access control
+- **Audit Logs**: Complete activity tracking
+- **Secure Authentication**: JWT tokens with refresh mechanism
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 19.1.0** - UI library with latest features
@@ -125,7 +125,7 @@
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -167,7 +167,7 @@
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -248,7 +248,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Development Mode
 
@@ -282,7 +282,7 @@ npm start
 
 ---
 
-## 📡 API Documentation
+## API Documentation
 
 ### Base URL
 ```
@@ -390,7 +390,7 @@ Content-Type: application/json
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Key Tables
 
@@ -454,7 +454,7 @@ CREATE TABLE shifts (
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Dashboard
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Dashboard+Preview" alt="Dashboard" width="800"/>
@@ -477,7 +477,7 @@ CREATE TABLE shifts (
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these steps:
 
@@ -512,7 +512,7 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -534,13 +534,13 @@ copies or substantial portions of the Software.
 
 ---
 
-## 👨‍💻 Authors
+## Authors
 
-- **Aman Yadav** - *Lead Developer* - [@yadavaman13](https://github.com/yadavaman13)
+**Aman Yadav** - *Lead Developer* - [@yadavaman13](https://github.com/yadavaman13)
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - React team for the amazing framework
 - Tailwind CSS for the utility-first CSS approach
@@ -549,7 +549,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 📞 Contact & Support
+## Contact & Support
 
 - **GitHub Issues**: [Report a bug](https://github.com/yadavaman13/WorkZen/issues)
 - **Email**: support@workzen.io
@@ -558,7 +558,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Version 2.0 (Upcoming)
 - [ ] Mobile application (React Native)
@@ -583,9 +583,9 @@ copies or substantial portions of the Software.
 
 <div align="center">
   
-  ### ⭐ Star this repository if you find it helpful!
+  **Star this repository if you find it helpful**
   
-  Made with ❤️ by the WorkZen Team
+  Made by the WorkZen Team
   
   © 2025 WorkZen. All rights reserved.
   
