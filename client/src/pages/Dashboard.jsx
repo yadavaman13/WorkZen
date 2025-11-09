@@ -1,7 +1,7 @@
 // src/pages/Employees.jsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
-import { employees } from "../data/hrms.js";
+import { employees, departments } from "../data/hrms.js";
 
 function EmployeeCard({ employee }) {
   return (
@@ -41,13 +41,31 @@ function EmployeeCard({ employee }) {
 
 export default function Employees() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const filterRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilter(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch = `${emp.first_name} ${emp.last_name}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    const matchesDepartment =
+      departmentFilter === "all" ||
+      emp.department_id === parseInt(departmentFilter);
+
+    return matchesSearch && matchesDepartment;
   });
 
   return (
@@ -82,7 +100,7 @@ export default function Employees() {
           </button>
         </div>
 
-        {/* Search Row */}
+        {/* Search and Filter Row */}
         <div className="flex items-center gap-3">
           <div className="flex-1 max-w-md">
             <div className="relative">
@@ -104,9 +122,99 @@ export default function Employees() {
                 placeholder="Search employees..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#A24689] focus:border-transparent transition-all placeholder-gray-400"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder-gray-400"
               />
             </div>
+          </div>
+
+          <div className="relative" ref={filterRef}>
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className={`px-4 py-2.5 border rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
+                departmentFilter !== "all"
+                  ? "border-gray-900 bg-gray-900 text-white"
+                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              <span>Filter</span>
+            </button>
+
+            {/* Filter Dropdown */}
+            {showFilter && (
+              <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10">
+                <div className="p-4">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Department
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors">
+                      <input
+                        type="radio"
+                        name="department"
+                        value="all"
+                        checked={departmentFilter === "all"}
+                        onChange={(e) => setDepartmentFilter(e.target.value)}
+                        className="w-4 h-4 text-gray-900 focus:ring-gray-900"
+                      />
+                      <span className="text-sm text-gray-700 font-medium">
+                        All Departments
+                      </span>
+                    </label>
+                    {departments.map((dept) => (
+                      <label
+                        key={dept.department_id}
+                        className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="radio"
+                          name="department"
+                          value={dept.department_id.toString()}
+                          checked={
+                            departmentFilter === dept.department_id.toString()
+                          }
+                          onChange={(e) => setDepartmentFilter(e.target.value)}
+                          className="w-4 h-4 focus:ring-2"
+                          style={{ accentColor: "#A24689" }}
+                        />
+                        <span className="text-sm text-gray-700">
+                          {dept.department_name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-gray-200 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setDepartmentFilter("all");
+                      }}
+                      className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={() => setShowFilter(false)}
+                      className="flex-1 px-3 py-2 text-sm font-medium text-white rounded-md hover:opacity-90 transition-all"
+                      style={{ backgroundColor: "#A24689" }}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

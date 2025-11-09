@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
+import api from "../api/axios";
+import Toast from "../components/Toast";
 
 export default function Payroll() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -9,8 +11,150 @@ export default function Payroll() {
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   const [showPayslipDetail, setShowPayslipDetail] = useState(false);
   const [payslipDetailTab, setPayslipDetailTab] = useState("workedDays");
+  
+  // Backend data states
+  const [dashboardData, setDashboardData] = useState(null);
+  const [selectedPayrun, setSelectedPayrun] = useState(null);
+  const [payrunDetails, setPayrunDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  // Sample payroll data
+  // Fetch dashboard data
+  useEffect(() => {
+    if (activeTab === "dashboard") {
+      fetchDashboardData();
+    }
+  }, [activeTab]);
+
+  // Fetch payrun details when switching to payrun tab
+  useEffect(() => {
+    if (activeTab === "payrun" && dashboardData?.recentPayruns?.length > 0) {
+      // Auto-select the first payrun
+      const firstPayrun = dashboardData.recentPayruns[0];
+      fetchPayrunDetails(firstPayrun.id);
+    }
+  }, [activeTab, dashboardData]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/payroll/dashboard');
+      if (response.data.success) {
+        setDashboardData(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to fetch dashboard data'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPayrunDetails = async (payrunId) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/payroll/payruns/${payrunId}`);
+      if (response.data.success) {
+        setPayrunDetails(response.data.data);
+        setSelectedPayrun(payrunId);
+      }
+    } catch (error) {
+      console.error('Error fetching payrun details:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to fetch payrun details'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPayslipDetails = async (payslipId) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/payroll/payslips/${payslipId}`);
+      if (response.data.success) {
+        const payslip = response.data.data;
+        
+        // Transform backend data to match frontend structure
+        const transformedPayslip = {
+          id: payslip.id,
+          employee: payslip.employee_name,
+          payPeriod: `[${getMonthName(payslip.month)} ${payslip.year}][Employee]`,
+          payrun: `Payrun ${getMonthName(payslip.month)} ${payslip.year}`,
+          salaryStructure: "Regular Pay",
+          period: `${formatDate(payslip.period_start)} To ${formatDate(payslip.period_end)}`,
+          employerCost: `₹ ${parseFloat(payslip.gross).toFixed(2)}`,
+          basicWage: `₹ ${(payslip.components?.find(c => c.component === 'Basic Salary')?.amount || 0).toFixed(2)}`,
+          grossWage: `₹ ${parseFloat(payslip.gross).toFixed(2)}`,
+          netWage: `₹ ${parseFloat(payslip.net).toFixed(2)}`,
+          status: payslip.status === 'validated' ? 'Done' : payslip.status.charAt(0).toUpperCase() + payslip.status.slice(1),
+          workedDays: {
+            attendance: {
+              days: payslip.attendance_data?.presentDays || 0,
+              amount: `₹ ${((payslip.gross / payslip.attendance_data?.totalDays) * payslip.attendance_data?.presentDays || 0).toFixed(2)}`
+            },
+            paidTimeOff: {
+              days: payslip.attendance_data?.paidLeaveDays || 0,
+              amount: `₹ ${((payslip.gross / payslip.attendance_data?.totalDays) * payslip.attendance_data?.paidLeaveDays || 0).toFixed(2)}`
+            },
+            total: {
+              days: payslip.attendance_data?.workedDays || 0,
+              amount: `₹ ${parseFloat(payslip.gross).toFixed(2)}`
+            }
+          },
+          salaryComputation: {
+            gross: (payslip.components || []).map(comp => ({
+              ruleName: comp.component,
+              rate: 100,
+              amount: `₹ ${parseFloat(comp.amount).toFixed(2)}`
+            })),
+            grossTotal: {
+              rate: 100,
+              amount: `₹ ${parseFloat(payslip.gross).toFixed(2)}`
+            },
+            deductions: (payslip.deductions || []).map(ded => ({
+              ruleName: ded.component,
+              rate: 100,
+              amount: `- ₹ ${parseFloat(ded.amount).toFixed(2)}`
+            })),
+            netAmount: {
+              rate: 100,
+              amount: `₹ ${parseFloat(payslip.net).toFixed(2)}`
+            }
+          }
+        };
+        
+        setSelectedPayslip(transformedPayslip);
+        setShowPayslipDetail(true);
+      }
+    } catch (error) {
+      console.error('Error fetching payslip details:', error);
+      setToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to fetch payslip details'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getMonthName = (monthNum) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[monthNum - 1] || '';
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = getMonthName(date.getMonth() + 1);
+    return `${day} ${month}`;
+  };
+
+  // Sample payroll data (for backward compatibility)
   const payrollData = {
     month: "Oct 2025",
     totalEmployerCost: "₹ 50,000",
@@ -58,8 +202,13 @@ export default function Payroll() {
   ];
 
   const handleViewPayslip = (payroll) => {
-    setSelectedPayslip(payroll);
-    setShowPayslipDetail(true);
+    // If payroll has an id (from backend), fetch detailed data
+    if (payroll.id && !payroll.salaryComputation) {
+      fetchPayslipDetails(payroll.id);
+    } else {
+      setSelectedPayslip(payroll);
+      setShowPayslipDetail(true);
+    }
   };
 
   const handleBackToPayrun = () => {
@@ -68,31 +217,95 @@ export default function Payroll() {
   };
 
   const handleNewPayslip = () => {
-    alert("New Payslip functionality will be implemented");
+    setToast({
+      type: 'info',
+      message: 'New Payslip functionality will be implemented'
+    });
   };
 
-  const handleCompute = () => {
-    if (selectedPayslip) {
-      alert("Computing payslip...");
+  const handleCompute = async () => {
+    if (selectedPayslip && selectedPayslip.id) {
+      try {
+        setLoading(true);
+        const response = await api.post(`/payroll/payslips/${selectedPayslip.id}/compute`);
+        if (response.data.success) {
+          setToast({
+            type: 'success',
+            message: 'Payslip computed successfully'
+          });
+          // Refresh payslip details
+          fetchPayslipDetails(selectedPayslip.id);
+        }
+      } catch (error) {
+        console.error('Error computing payslip:', error);
+        setToast({
+          type: 'error',
+          message: error.response?.data?.message || 'Failed to compute payslip'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleValidatePayslip = () => {
-    if (selectedPayslip) {
-      alert("Validating payslip...");
+  const handleValidatePayslip = async () => {
+    if (selectedPayslip && selectedPayslip.id) {
+      try {
+        setLoading(true);
+        const response = await api.post(`/payroll/payslips/${selectedPayslip.id}/validate`);
+        if (response.data.success) {
+          setToast({
+            type: 'success',
+            message: 'Payslip validated successfully'
+          });
+          // Refresh payslip details
+          fetchPayslipDetails(selectedPayslip.id);
+        }
+      } catch (error) {
+        console.error('Error validating payslip:', error);
+        setToast({
+          type: 'error',
+          message: error.response?.data?.message || 'Failed to validate payslip'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleCancelPayslip = () => {
-    if (selectedPayslip) {
-      alert("Cancelling payslip...");
+  const handleCancelPayslip = async () => {
+    if (selectedPayslip && selectedPayslip.id) {
+      try {
+        setLoading(true);
+        const response = await api.post(`/payroll/payslips/${selectedPayslip.id}/cancel`, {
+          reason: 'Cancelled by user'
+        });
+        if (response.data.success) {
+          setToast({
+            type: 'success',
+            message: 'Payslip cancelled successfully'
+          });
+          // Refresh payslip details
+          fetchPayslipDetails(selectedPayslip.id);
+        }
+      } catch (error) {
+        console.error('Error cancelling payslip:', error);
+        setToast({
+          type: 'error',
+          message: error.response?.data?.message || 'Failed to cancel payslip'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handlePrintPayslip = () => {
     if (selectedPayslip) {
-      alert("Printing payslip...");
-      // TODO: Implement actual print functionality
+      setToast({
+        type: 'info',
+        message: 'Print functionality will be implemented'
+      });
     }
   };
 
@@ -165,42 +378,73 @@ export default function Payroll() {
                 Warning
               </h3>
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <svg
-                    className="w-5 h-5 text-yellow-600 mt-0.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      1 Employee without Bank A/c
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <svg
-                    className="w-5 h-5 text-yellow-600 mt-0.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      1 Employee without Manager
-                    </p>
-                  </div>
-                </div>
+                {loading && !dashboardData ? (
+                  <p className="text-sm text-gray-500">Loading warnings...</p>
+                ) : dashboardData?.warnings ? (
+                  <>
+                    {dashboardData.warnings.missing_bank_account?.count > 0 && (
+                      <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <svg className="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {dashboardData.warnings.missing_bank_account.count} {dashboardData.warnings.missing_bank_account.message}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {dashboardData.warnings.missing_manager?.count > 0 && (
+                      <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {dashboardData.warnings.missing_manager.count} {dashboardData.warnings.missing_manager.message}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {dashboardData.warnings.unapproved_leaves?.count > 0 && (
+                      <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {dashboardData.warnings.unapproved_leaves.count} {dashboardData.warnings.unapproved_leaves.message}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {dashboardData.warnings.missing_attendance?.count > 0 && (
+                      <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <svg className="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {dashboardData.warnings.missing_attendance.count} {dashboardData.warnings.missing_attendance.message}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {!dashboardData.warnings.missing_bank_account?.count && 
+                     !dashboardData.warnings.missing_manager?.count && 
+                     !dashboardData.warnings.unapproved_leaves?.count && 
+                     !dashboardData.warnings.missing_attendance?.count && (
+                      <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm font-medium text-green-900">No warnings</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">No warnings available</p>
+                )}
               </div>
             </div>
 
@@ -210,22 +454,26 @@ export default function Payroll() {
                 Payrun
               </h3>
               <div className="space-y-3">
-                <a
-                  href="#"
-                  className="block p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
-                >
-                  <p className="text-sm font-medium text-purple-900">
-                    Payrun for Oct 2025 (3 Payslip)
-                  </p>
-                </a>
-                <a
-                  href="#"
-                  className="block p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
-                >
-                  <p className="text-sm font-medium text-purple-900">
-                    Payrun for Sept 2025 (3 Payslip)
-                  </p>
-                </a>
+                {loading && !dashboardData ? (
+                  <p className="text-sm text-gray-500">Loading payruns...</p>
+                ) : dashboardData?.recentPayruns?.length > 0 ? (
+                  dashboardData.recentPayruns.map((payrun) => (
+                    <button
+                      key={payrun.id}
+                      onClick={() => {
+                        setActiveTab('payrun');
+                        fetchPayrunDetails(payrun.id);
+                      }}
+                      className="block w-full text-left p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      <p className="text-sm font-medium text-purple-900">
+                        Payrun for {getMonthName(payrun.month)} {payrun.year} ({payrun.employee_count} Payslip{payrun.employee_count !== 1 ? 's' : ''})
+                      </p>
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No recent payruns</p>
+                )}
               </div>
             </div>
           </div>
@@ -558,25 +806,25 @@ export default function Payroll() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-1">
-                    Payrun {payrollData.month}
+                    {payrunDetails ? `Payrun ${getMonthName(payrunDetails.month)} ${payrunDetails.year}` : 'Payrun'}
                   </h2>
                   <div className="flex items-center gap-6 mt-3">
                     <div>
                       <p className="text-xs text-gray-500">Employer Cost</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        {payrollData.totalEmployerCost}
+                        ₹ {payrunDetails ? parseFloat(payrunDetails.total_gross || 0).toFixed(2) : payrollData.totalEmployerCost}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Gross</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        {payrollData.totalGross}
+                        ₹ {payrunDetails ? parseFloat(payrunDetails.total_gross || 0).toFixed(2) : payrollData.totalGross}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Net</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        {payrollData.totalNet}
+                        ₹ {payrunDetails ? parseFloat(payrunDetails.total_net || 0).toFixed(2) : payrollData.totalNet}
                       </p>
                     </div>
                   </div>
@@ -584,7 +832,7 @@ export default function Payroll() {
                 <button
                   className="px-6 py-2.5 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors"
                 >
-                  Done
+                  {payrunDetails?.status === 'validated' ? 'Done' : (payrunDetails?.status || 'Draft').charAt(0).toUpperCase() + (payrunDetails?.status || 'draft').slice(1)}
                 </button>
               </div>
             </div>
@@ -618,7 +866,53 @@ export default function Payroll() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {employeePayrolls.map((payroll) => (
+                  {loading && !payrunDetails ? (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">
+                        Loading payslips...
+                      </td>
+                    </tr>
+                  ) : payrunDetails?.payslips?.length > 0 ? (
+                    payrunDetails.payslips.map((payslip) => {
+                      const basicSalary = payslip.components?.find(c => c.component === 'Basic Salary')?.amount || 0;
+                      return (
+                        <tr
+                          key={payslip.id}
+                          onClick={() => handleViewPayslip(payslip)}
+                          className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            [{getMonthName(payrunDetails.month)} {payrunDetails.year}][Employee]
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {payslip.employee_name}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            ₹ {parseFloat(payslip.gross || 0).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            ₹ {parseFloat(basicSalary).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            ₹ {parseFloat(payslip.gross || 0).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            ₹ {parseFloat(payslip.net || 0).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                              payslip.status === 'validated' ? 'bg-green-100 text-green-800' :
+                              payslip.status === 'computed' ? 'bg-blue-100 text-blue-800' :
+                              payslip.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {payslip.status === 'validated' ? 'Done' : payslip.status.charAt(0).toUpperCase() + payslip.status.slice(1)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (employeePayrolls.map((payroll) => (
                     <tr
                       key={payroll.id}
                       onClick={() => handleViewPayslip(payroll)}
@@ -648,7 +942,7 @@ export default function Payroll() {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>
@@ -709,6 +1003,15 @@ export default function Payroll() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
       )}
     </DashboardLayout>
   );

@@ -6,13 +6,15 @@ const navItem =
   "group flex items-center gap-3 pr-4 py-3 transition-all duration-200 text-sm font-medium active:scale-[0.98] active:opacity-80";
 
 export default function Sidebar() {
+  const { user } = useAuth();
+  
   return (
     <aside className="h-screen w-56 border-r border-gray-200 bg-white hidden md:flex md:flex-col md:sticky md:top-0">
       {/* Logo Section */}
       <div className="px-6 pt-5 pb-5">
         <div className="flex items-center gap-3">
           <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
             style={{ backgroundColor: "#A24689" }}
           >
             <span className="text-white font-bold text-base">W</span>
@@ -30,52 +32,57 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 py-5">
-        <NavLink
-          to="/dashboard/employees"
-          className={({ isActive }) =>
-            `${navItem} pl-6 ${
+        {/* Employees - Accessible by: Admin, HR */}
+        {(user?.role === "admin" || user?.role === "hr") && (
+          <NavLink
+            to="/dashboard/employees"
+            className={({ isActive }) =>
+              `${navItem} pl-6 ${
+                isActive
+                  ? "text-gray-900 bg-gray-100 border-l-4"
+                  : "text-gray-700 hover:bg-gray-50 border-l-4 border-transparent"
+              }`
+            }
+            style={({ isActive }) =>
               isActive
-                ? "text-gray-900 bg-gray-100 border-l-4"
-                : "text-gray-700 hover:bg-gray-50 border-l-4 border-transparent"
-            }`
-          }
-          style={({ isActive }) =>
-            isActive
-              ? {
-                  borderLeftColor: "#A24689",
-                  paddingLeft: "calc(1.5rem - 4px)",
-                }
-              : {}
-          }
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+                ? {
+                    borderLeftColor: "#A24689",
+                    paddingLeft: "calc(1.5rem - 4px)",
+                  }
+                : {}
+            }
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
-          <span className="flex-1">Employees</span>
-          <svg
-            className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </NavLink>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <span className="flex-1">Employees</span>
+            <svg
+              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-active:translate-x-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </NavLink>
+        )}
+
+        {/* Attendance - Accessible by: Admin, HR, Payroll, Employee */}
         <NavLink
           to="/dashboard/attendance"
           className={({ isActive }) =>
@@ -122,6 +129,8 @@ export default function Sidebar() {
             />
           </svg>
         </NavLink>
+
+        {/* Time Off - Accessible by: Admin, HR, Payroll, Employee */}
         <NavLink
           to="/dashboard/timeoff"
           className={({ isActive }) =>

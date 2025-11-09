@@ -1,65 +1,78 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
+import ConfirmationModal from "../components/ConfirmationModal.jsx";
+import Toast from "../components/Toast.jsx";
+import api from "../api/axios";
 
 export default function Settings() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    userId: null,
+    newRole: null,
+    currentRole: null,
+    userName: null,
+  });
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success',
+  });
 
   // Fetch users from backend
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  const showToast = (message, type = 'success') => {
+    setToast({ isVisible: true, message, type });
+  };
+
+  const hideToast = () => {
+    setToast({ isVisible: false, message: '', type: 'success' });
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
-      // const response = await fetch('http://localhost:5000/api/admin/users');
-      // const data = await response.json();
-      
-      // Mock data for now
-      const mockData = [
-        {
-          id: 1,
-          username: "John Doe",
-          loginId: "john.doe",
-          email: "john@workzen.com",
-          role: "employee",
-        },
-        {
-          id: 2,
-          username: "Jane Smith",
-          loginId: "jane.smith",
-          email: "jane@workzen.com",
-          role: "hr",
-        },
-        {
-          id: 3,
-          username: "Admin User",
-          loginId: "admin",
-          email: "admin@workzen.com",
-          role: "admin",
-        },
-      ];
-      
-      setUsers(mockData);
+      setError(null);
+      const response = await api.get('/admin/users');
+      setUsers(response.data.users);
     } catch (error) {
       console.error("Failed to fetch users:", error);
+      setError(error.response?.data?.msg || "Failed to fetch users. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      // TODO: Implement API call to update role
-      // await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ role: newRole })
-      // });
+  const handleRoleChange = (userId, newRole, currentRole, userName) => {
+    // Don't show modal if role hasn't changed
+    if (newRole === currentRole) {
+      return;
+    }
 
-      // Update local state
+    // Open confirmation modal
+    setConfirmModal({
+      isOpen: true,
+      userId,
+      newRole,
+      currentRole,
+      userName,
+    });
+  };
+
+  const handleConfirmRoleChange = async () => {
+    const { userId, newRole, userName } = confirmModal;
+
+    try {
+      setUpdatingUserId(userId);
+      const response = await api.put(`/admin/users/${userId}/role`, { role: newRole });
+
+      // Update local state with the updated user
       setUsers(
         users.map((user) => {
           if (user.id === userId) {
@@ -69,11 +82,33 @@ export default function Settings() {
         })
       );
       
-      alert("User role updated successfully!");
+      // Close modal
+      setConfirmModal({ isOpen: false, userId: null, newRole: null, currentRole: null, userName: null });
+      
+      // Show success toast
+      showToast(`${userName}'s role has been updated successfully!`, 'success');
     } catch (error) {
       console.error("Failed to update role:", error);
-      alert("Failed to update role");
+      const errorMsg = error.response?.data?.msg || "Failed to update role. Please try again.";
+      
+      // Show error toast
+      showToast(errorMsg, 'error');
+      
+      // Refresh users to revert the UI change if it failed
+      fetchUsers();
+      
+      // Close modal
+      setConfirmModal({ isOpen: false, userId: null, newRole: null, currentRole: null, userName: null });
+    } finally {
+      setUpdatingUserId(null);
     }
+  };
+
+  const handleCancelRoleChange = () => {
+    // Close modal and revert dropdown
+    setConfirmModal({ isOpen: false, userId: null, newRole: null, currentRole: null, userName: null });
+    // Trigger a re-render to reset the dropdown
+    setUsers([...users]);
   };
 
   const roles = [
@@ -87,7 +122,28 @@ export default function Settings() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading users...</div>
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-[#A24689] border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-gray-500">Loading users...</div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">{error}</div>
+            <button
+              onClick={fetchUsers}
+              className="px-4 py-2 bg-[#A24689] text-white rounded-lg hover:bg-[#8a3a73] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -98,6 +154,7 @@ export default function Settings() {
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600 mt-2">Manage user roles and permissions</p>
       </div>
 
       {/* Settings Table */}
@@ -110,7 +167,7 @@ export default function Settings() {
                   User name
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                  Login id
+                  Employee ID
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Email
@@ -118,52 +175,98 @@ export default function Settings() {
                 <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">
                   Role
                 </th>
+                <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {user.username}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {user.loginId}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 flex justify-center">
-                    <select
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      className="px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#A24689] focus:border-transparent outline-none transition-all text-sm text-center appearance-none bg-white"
-                      style={{ 
-                        width: "180px",
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 0.5rem center',
-                        backgroundSize: '1.5em 1.5em',
-                      }}
-                    >
-                      {roles.map((role) => (
-                        <option 
-                          key={role.value} 
-                          value={role.value}
-                          className="text-center py-2"
-                        >
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                    No users found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {user.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {user.employee_id || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 flex justify-center">
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value, user.role, user.name)}
+                        disabled={updatingUserId === user.id}
+                        className="px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#A24689] focus:border-transparent outline-none transition-all text-sm text-center appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ 
+                          width: "180px",
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 0.5rem center',
+                          backgroundSize: '1.5em 1.5em',
+                        }}
+                      >
+                        {roles.map((role) => (
+                          <option 
+                            key={role.value} 
+                            value={role.value}
+                            className="text-center py-2"
+                          >
+                            {role.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        user.status === 'active' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {user.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={handleCancelRoleChange}
+        onConfirm={handleConfirmRoleChange}
+        title="Confirm Role Change"
+        message={confirmModal.userName && confirmModal.currentRole && confirmModal.newRole ? 
+          `Are you sure you want to change ${confirmModal.userName}'s role from ${
+            roles.find(r => r.value === confirmModal.currentRole)?.label
+          } to ${
+            roles.find(r => r.value === confirmModal.newRole)?.label
+          }?\n\nThis will immediately affect their access permissions.` : 
+          ''
+        }
+        confirmText="Change Role"
+        cancelText="Cancel"
+        isLoading={updatingUserId === confirmModal.userId}
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
     </DashboardLayout>
   );
 }
