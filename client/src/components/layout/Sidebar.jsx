@@ -335,38 +335,13 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* Logout Section */}
-      <div className="mt-auto pt-4 border-t border-gray-100">
-        {/* Logout Button */}
-        <div className="px-4 pb-5">
-          <button
-            onClick={() => useAuth().logout()}
-            className="group/logout w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-300 active:scale-[0.98]"
-          >
-            <svg
-              className="w-5 h-5 transition-transform duration-300 group-hover/logout:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span className="flex-1 text-left">Logout</span>
-          </button>
-        </div>
-
         {/* Footer */}
         <div className="px-6 pb-4">
           <div className="text-[10px] text-gray-400 text-center">
             v1.0.0 • © 2025 WorkZen
           </div>
         </div>
-      </div>
+      
     </aside>
   );
 }
