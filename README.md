@@ -1,8 +1,5 @@
 <div align="center">
   
-  <!-- Logo Placeholder -->
-  <img src="https://via.placeholder.com/200x200/A24689/FFFFFF?text=WorkZen" alt="WorkZen Logo" width="200"/>
-  
   # WorkZen HRMS
   
   ### Modern Human Resource Management System
@@ -56,10 +53,13 @@
 ## Features
 
 ### Employee Management
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - Employee onboarding and offboarding
 - Profile management with document verification
 - Department and role assignment
@@ -67,10 +67,13 @@
 - Organizational hierarchy visualization
 
 ### Attendance System
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **Multi-shift Support**: Fixed shifts, rotating rosters, flexible schedules
 - **Punch Tracking**: Biometric, mobile app, and web-based check-in/out
 - **Geofencing**: Location-based attendance validation
@@ -82,10 +85,13 @@
 - **Real-time Dashboard**: Live attendance stats and insights
 
 ### Leave Management
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - Multiple leave types (Casual, Sick, Privilege, WFH)
 - Leave balance tracking
 - Approval workflow
@@ -93,10 +99,13 @@
 - Half-day and partial leave support
 
 ### Payroll Management
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - Salary structure configuration
 - Automated payroll processing
 - Deduction and allowance management
@@ -104,10 +113,13 @@
 - Tax calculation support
 
 ### Reports & Analytics
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - Attendance reports and heatmaps
 - Leave analytics
 - Payroll summaries
@@ -115,10 +127,13 @@
 - Custom report builder
 
 ### Access Control
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **Role-based Access**: Employee, HR, Payroll, Admin roles
 - **Permission Management**: Granular access control
 - **Audit Logs**: Complete activity tracking
@@ -129,10 +144,13 @@
 ## Tech Stack
 
 ### Frontend
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **React 19.1.0** - UI library with latest features
 - **Vite 7.2.2** - Fast build tool and dev server
 - **Tailwind CSS 4.1.17** - Utility-first CSS framework
@@ -140,10 +158,13 @@
 - **Axios** - HTTP client for API calls
 
 ### Backend
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **Node.js 18+** - JavaScript runtime
 - **Express.js** - Web application framework
 - **PostgreSQL 15** - Relational database
@@ -151,10 +172,13 @@
 - **Bcrypt** - Password hashing
 
 ### DevOps & Tools
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **Git** - Version control
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
@@ -211,7 +235,9 @@ Before you begin, ensure you have the following installed:
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
 - **PostgreSQL** (v15 or higher) - [Download](https://www.postgresql.org/download/)
 - **Git** - [Download](https://git-scm.com/)
@@ -226,19 +252,23 @@ cd WorkZen
 ### Step 2: Setup Database
 
 1. Create a PostgreSQL database:
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```sql
 CREATE DATABASE workzen_db;
 ```
 
 2. Run the database migrations (if available):
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd server
 npm run migrate
@@ -247,20 +277,26 @@ npm run migrate
 ### Step 3: Install Dependencies
 
 #### Backend Setup
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd server
 npm install
 ```
 
 #### Frontend Setup
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd ../client
 npm install
@@ -269,13 +305,16 @@ npm install
 ### Step 4: Environment Configuration
 
 #### Backend (.env)
+
 <<<<<<< HEAD
 
 Create a `.env` file in the `server` directory:
 
 =======
 Create a `.env` file in the `server` directory:
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```env
 # Server Configuration
 PORT=5000
@@ -303,13 +342,16 @@ CLIENT_URL=http://localhost:5173
 ```
 
 #### Frontend (.env)
+
 <<<<<<< HEAD
 
 Create a `.env` file in the `client` directory:
 
 =======
 Create a `.env` file in the `client` directory:
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
@@ -321,14 +363,18 @@ VITE_API_URL=http://localhost:5000/api
 ### Development Mode
 
 #### Start Backend Server
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd server
 npm run dev
 ```
+
 <<<<<<< HEAD
 
 Server will run on `http://localhost:5000`
@@ -339,34 +385,44 @@ Server will run on `http://localhost:5000`
 Server will run on `http://localhost:5000`
 
 #### Start Frontend Development Server
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd client
 npm run dev
 ```
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
-Frontend will run on `http://localhost:5173`
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+> > > > > > > Frontend will run on `http://localhost:5173`
 
 ### Production Build
 
 #### Build Frontend
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd client
 npm run build
 ```
 
 #### Start Production Server
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```bash
 cd server
 npm start
@@ -377,10 +433,13 @@ npm start
 ## API Documentation
 
 ### Base URL
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```
 http://localhost:5000/api
 ```
@@ -388,10 +447,13 @@ http://localhost:5000/api
 ### Authentication Endpoints
 
 #### Register User
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -406,10 +468,13 @@ Content-Type: application/json
 ```
 
 #### Login
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -423,30 +488,39 @@ Content-Type: application/json
 ### Employee Endpoints
 
 #### Get All Employees
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 GET /api/employees
 Authorization: Bearer {token}
 ```
 
 #### Get Employee by ID
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 GET /api/employees/:id
 Authorization: Bearer {token}
 ```
 
 #### Create Employee
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 POST /api/employees
 Authorization: Bearer {token}
@@ -466,20 +540,26 @@ Content-Type: application/json
 ### Attendance Endpoints
 
 #### Get Attendance Records
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 GET /api/attendance?date=2025-11-09&employeeId=1
 Authorization: Bearer {token}
 ```
 
 #### Mark Attendance
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 POST /api/attendance
 Authorization: Bearer {token}
@@ -495,10 +575,13 @@ Content-Type: application/json
 ```
 
 #### Request Regularization
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```http
 POST /api/attendance/regularization
 Authorization: Bearer {token}
@@ -523,10 +606,13 @@ Content-Type: application/json
 ### Key Tables
 
 #### Users
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```sql
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
@@ -538,10 +624,13 @@ CREATE TABLE users (
 ```
 
 #### Employees
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```sql
 CREATE TABLE employees (
   id SERIAL PRIMARY KEY,
@@ -558,10 +647,13 @@ CREATE TABLE employees (
 ```
 
 #### Attendance
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```sql
 CREATE TABLE attendance (
   id SERIAL PRIMARY KEY,
@@ -579,10 +671,13 @@ CREATE TABLE attendance (
 ```
 
 #### Shifts
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 ```sql
 CREATE TABLE shifts (
   id SERIAL PRIMARY KEY,
@@ -601,44 +696,50 @@ CREATE TABLE shifts (
 ## Screenshots
 
 ### Dashboard
+
 <<<<<<< HEAD
+
+<img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Dashboard+Preview" alt="Dashboard" width="800"/>
+
+# _Main dashboard with real-time metrics and quick actions_
 
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Dashboard+Preview" alt="Dashboard" width="800"/>
 
 _Main dashboard with real-time metrics and quick actions_
-=======
-<img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Dashboard+Preview" alt="Dashboard" width="800"/>
 
-*Main dashboard with real-time metrics and quick actions*
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
 
 ---
 
 ### Attendance Management
+
 <<<<<<< HEAD
+
+<img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Attendance+Management" alt="Attendance" width="800"/>
+
+# _Comprehensive attendance tracking with shift details, anomalies, and approvals_
 
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Attendance+Management" alt="Attendance" width="800"/>
 
 _Comprehensive attendance tracking with shift details, anomalies, and approvals_
-=======
-<img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Attendance+Management" alt="Attendance" width="800"/>
 
-*Comprehensive attendance tracking with shift details, anomalies, and approvals*
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
 
 ---
 
 ### Employee Directory
+
 <<<<<<< HEAD
 
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Employee+Directory" alt="Employees" width="800"/>
 
-_Employee management with advanced search and filtering_
-=======
+# _Employee management with advanced search and filtering_
+
 <img src="https://via.placeholder.com/800x450/A24689/FFFFFF?text=Employee+Directory" alt="Employees" width="800"/>
 
-*Employee management with advanced search and filtering*
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+_Employee management with advanced search and filtering_
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
 
 ---
 
@@ -647,48 +748,59 @@ _Employee management with advanced search and filtering_
 We welcome contributions! Please follow these steps:
 
 1. **Fork the repository**
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
-   ```bash
-   git clone https://github.com/yadavaman13/WorkZen.git
-   ```
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+```bash
+git clone https://github.com/yadavaman13/WorkZen.git
+```
 
 2. **Create a feature branch**
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+```bash
+git checkout -b feature/amazing-feature
+```
 
 3. **Commit your changes**
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+```bash
+git commit -m 'Add some amazing feature'
+```
 
 4. **Push to the branch**
-<<<<<<< HEAD
+   <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
-   ```bash
-   git push origin feature/amazing-feature
-   ```
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+```bash
+git push origin feature/amazing-feature
+```
 
 5. **Open a Pull Request**
 
 ### Coding Standards
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - Follow ESLint configuration
 - Write meaningful commit messages
 - Add comments for complex logic
@@ -724,8 +836,9 @@ copies or substantial portions of the Software.
 <<<<<<< HEAD
 **Aman Yadav** - _Lead Developer_ - [@yadavaman13](https://github.com/yadavaman13)
 =======
-**Aman Yadav** - *Lead Developer* - [@yadavaman13](https://github.com/yadavaman13)
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+**Aman Yadav** - _Lead Developer_ - [@yadavaman13](https://github.com/yadavaman13)
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
 
 ---
 
@@ -750,10 +863,13 @@ copies or substantial portions of the Software.
 ## Roadmap
 
 ### Version 2.0 (Upcoming)
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - [ ] Mobile application (React Native)
 - [ ] Advanced analytics with charts
 - [ ] AI-powered insights
@@ -766,10 +882,13 @@ copies or substantial portions of the Software.
 - [ ] Asset management
 
 ### Version 1.5
+
 <<<<<<< HEAD
 
 =======
->>>>>>> c52358f937c70b9f47b7478dd2b642f51ee8126d
+
+> > > > > > > c52358f937c70b9f47b7478dd2b642f51ee8126d
+
 - [ ] Email notifications
 - [ ] Calendar integration
 - [ ] Document management
